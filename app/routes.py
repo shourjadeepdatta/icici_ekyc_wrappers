@@ -104,16 +104,19 @@ def ekyc_verify():
             }
             headers = {"content_type":"application/json"}
             try:
-                response = requests.request("POST","http://localhost:5000/ekyc_download",data=json.dumps(download_payload),headers=headers,verify=False,timeout=100)
-                print("download_wrapper_response is->>>",response.text)
-                download_response = response.json()
+                down_response = requests.request("POST","http://localhost:5000/ekyc_download",data=json.dumps(download_payload),headers=headers,verify=False,timeout=100)
+                print("download_wrapper_response is->>>",down_response.text)
+                download_response = down_response.json()
+                print("json respone->>",download_response)
+                if down_response.status_code == 200:
+                    return jsonify(download_response), 200
             except Exception as e:
                 print(str(e))
                 return jsonify({"message":"some problem while calling the download wrapper","error":str(e),"status_code":500}), 500
-            
-        return jsonify(download_response), 200
+        
+        
     
-    return jsonify({"error": "Failed to send request", "status_code": response.status_code}), response.status_code
+    return jsonify({"error": "Failed to send request", "status_code": 500}), 500
 
 
 @bp.route('/ekyc_download', methods=['POST'])
@@ -169,6 +172,7 @@ def ekyc_download():
         xml_response = response.content.decode('utf-8')
         json_response = xmltodict.parse(xml_response)
         final_resp = json_response.get("soap:Envelope",{}).get("soap:Body",{}).get("DownloadPANDetails_eKYCResponse",{}).get("DownloadPANDetails_eKYCResult",{}).get("ROOT",{}).get("KYC_DATA")
+        print("final_resp->>>",final_resp)
         if final_resp is None:
             return jsonify({"message":"cams api failed","status_code":500}), 500
         
