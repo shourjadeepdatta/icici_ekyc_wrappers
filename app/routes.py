@@ -79,6 +79,7 @@ def ekyc_verify():
     response = requests.post(api_url, data=soap_envelope, headers=headers, verify=False,timeout=100)
     # print("final payload ->>>",soap_envelope)
     print("response is ->>>",response.text)
+    print("ekyc_response_status_code->>",response.status_code)
     if response.status_code == 200:
         xml_response = response.content.decode('utf-8')
         json_response = xmltodict.parse(xml_response)
@@ -86,12 +87,14 @@ def ekyc_verify():
         if final_resp is None:
             return jsonify({"message":"cams api failed","status_code":500}), 500
         
+        print("final_resp is ->>>",final_resp)
         ndml_kra = final_resp.get("NDMLKRA")
         cams_kra = final_resp.get("CAMSKRA")
         cvl_kra = final_resp.get("CVLKRA")
         dot_exkra = final_resp.get("DOTEXKRA")
         karvy_kra = final_resp.get("KARVYKRA")
-
+        ndml_kra = "02"
+        print("kra is ->>>",ndml_kra)
         if ndml_kra in ["02","04","07"] or cams_kra in ["02","04","07"] or cvl_kra in ["02","04","07"] or dot_exkra in ["02","04","07"] or karvy_kra in ["02","04","07"]:
             download_payload = {
                 "APP_PAN_NO":data.get("APP_PAN_NO"),
