@@ -5,6 +5,7 @@ import json
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.padding import PKCS7
 from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
 
 def dict_to_xml(tag, d):
     elem = ET.Element(tag)
@@ -82,3 +83,79 @@ def encrypt_payload(payload):
     print("Encrypted Payload:", encrypted_base64)
 
     return encrypted_base64
+
+
+def CAMSEncryptionCKYC(data):
+    algorithm = 'aes-256-cbc'
+    varIVBase64 = base64.b64decode("NmZiYmEzOWFhZjFmZTNhZg==")
+    varKeyBase64 = base64.b64decode("OGIzOTFhODVhZTc3N2Y4YmFjYTZmZTcyZWRmY2ZjOTE=")
+
+    varIVBuffer = varIVBase64
+    varKeyBuffer = varKeyBase64
+
+    varTotalEncrypt = ''
+
+    try:
+        # Encrypt data
+        cipher = Cipher(algorithms.AES(varKeyBuffer), modes.CBC(varIVBuffer), backend=default_backend())
+        encryptor = cipher.encryptor()
+
+        padded_data = json.dumps(data).encode('utf-8')
+        # Pad data to be a multiple of 16 bytes
+        pad_length = 16 - (len(padded_data) % 16)
+        padded_data += bytes([pad_length] * pad_length)
+
+        varDataEncrypt = base64.b64encode(encryptor.update(padded_data) + encryptor.finalize()).decode('utf-8')
+
+        # Create hash of data
+        digest = hashes.Hash(hashes.SHA256(), backend=default_backend())
+        digest.update(json.dumps(data).encode('utf-8'))
+        varHashString = digest.finalize().hex()
+
+        # Encrypt hash
+        cipher = Cipher(algorithms.AES(varKeyBuffer), modes.CBC(varIVBuffer), backend=default_backend())
+        encryptor = cipher.encryptor()
+
+        padded_hash = varHashString.encode('utf-8')
+        # Pad hash to be a multiple of 16 bytes
+        pad_length = 16 - (len(padded_hash) % 16)
+        padded_hash += bytes([pad_length] * pad_length)
+
+        varHashEncrypt = base64.b64encode(encryptor.update(padded_hash) + encryptor.finalize()).decode('utf-8')
+
+        varTotalEncrypt = varDataEncrypt + '.' + varHashEncrypt
+        return varTotalEncrypt
+    except Exception as error:
+        print(error)
+        return varTotalEncrypt
+    finally:
+        algorithm = None
+        varIVBase64 = None
+        varKeyBase64 = None
+        varIVBuffer = None
+        varKeyBuffer = None
+
+
+def CAMSDecryptionCKYC(encrypted_data):
+    varIVBase64 = base64.b64decode("ZDYzYWZjNzYwYzM1ZDY3ZA==")
+    varKeyBase64 = base64.b64decode("ZWI3N2EyODJmZTdkYmJhZDc5ZGEwODZiZDdhYTZlYjI=")
+
+    varIVBuffer = varIVBase64
+    varKeyBuffer = varKeyBase64
+
+    try:
+        # Decrypt data
+        cipher = Cipher(algorithms.AES(varKeyBuffer), modes.CBC(varIVBuffer), backend=default_backend())
+        decryptor = cipher.decryptor()
+
+        encrypted_data_bytes = base64.b64decode(encrypted_data)
+        decrypted_padded_data = decryptor.update(encrypted_data_bytes) + decryptor.finalize()
+
+        # Remove padding
+        pad_length = decrypted_padded_data[-1]
+        decrypted_data = decrypted_padded_data[:-pad_length].decode('utf-8')
+        
+        return decrypted_data
+    except Exception as error:
+        print(error)
+        return None

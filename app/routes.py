@@ -16,8 +16,7 @@ import logging
 import xml.etree.ElementTree as ET
 from app.helpers import dict_to_xml
 import xmltodict
-from app.helpers import calculate_hash
-from app.helpers import encrypt_payload
+from app.helpers import CAMSEncryptionCKYC, CAMSDecryptionCKYC
 import uuid
 import pytz
 
@@ -202,14 +201,10 @@ def liveliness():
     payload["TimeStamp"] = str(formatted_time)
     # payload["SessionID"] = str(uuid.uuid4())
 
-    hash = calculate_hash(payload)
-
     print("normal payload->>>",payload)
 
-    data = encrypt_payload(payload)
+    encrypted_data_payload_for_api = CAMSEncryptionCKYC(payload)
 
-    encrypted_data_payload_for_api = data+"."+hash  
-    encrypted_data_payload_for_api = "FesNAnFZUOiUOhCEA0ZtHcLl3WruvhObT8hcAySMe1TC4ZD5eak3qVeWIfx3ipU4PI+MeyHPf3yAjI/LZOqXBvDcMHOaAVBKgJmkYl6IIKKmaG3cDECu+fzi4lZMLYILzyVscx8oRKeUkjkZcwi13rRcp152YGzW8r0KbJv/LXmbJD5xswn/6pkvK+nWmb6cTkhJ19LR7Syp9lyOIbzJxn5hqqwV2jBAyZZutFl6EhiGNXIgNk9Qexs8+YvarF4Y4aatYienJ4GNS1EVrDoN63jV1XiITGCSgb0R6anF08luNIj7GBAjK94yOu8HaafcJCk/DjIinhDZFUAl5B9Ytr5k/V/2y2GbK86mmymaxBk="+"."+"n0Z92Ah2NQhz2z/kUaIwXN01E9S5olssi7roLK2EvWA="  
 
     url = "https://digitalapiuat.camsonline.com/CAMSServiceSuite/api/CAMSLiveness"
 
@@ -222,11 +217,10 @@ def liveliness():
     try:
         response = requests.post(url,headers=headers,data=encrypted_data_payload_for_api,verify=False,timeout=100)
         print("encrypted response->>>",response.text)
+        decrypted_response = CAMSDecryptionCKYC(response.text)
+        return jsonify(json.loads(decrypted_response))
     except Exception as e:
         print("some problem->>>",str(e))
-
-    if response.status_code == 200:
-        return jsonify({"response":response.text,"status_code":200}), 200
 
     return jsonify({"message":"error while fetching the liveliness","status_code":400}), 400
 
