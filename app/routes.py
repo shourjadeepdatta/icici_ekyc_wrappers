@@ -193,13 +193,20 @@ def liveliness():
 
     current_time = datetime.datetime.now(pytz.utc)
 
-    # Format the time as a string
-    formatted_time = current_time.strftime('%Y-%m-%dT%H:%M:%S')
+    # Add 5 hours and 30 minutes
+    time_delta = datetime.timedelta(hours=5, minutes=30)
+    new_time = current_time + time_delta
 
-    print("Current Timestamp:", formatted_time)
+    # Format the new time as a string
+    formatted_new_time = new_time.strftime('%Y-%m-%dT%H:%M:%S')
 
-    payload["TimeStamp"] = str(formatted_time)
-    # payload["SessionID"] = str(uuid.uuid4())
+    print("New Timestamp (UTC + 5:30):", formatted_new_time)
+
+    payload["UserID"] = "ICSDK360_UAT"
+    payload["Password"] = "bzqUnl1g7At2NlS"
+    payload["DocumentIDRefNo"] = str(uuid.uuid4())
+    payload["TimeStamp"] = str(formatted_new_time)
+    payload["SessionID"] = str(uuid.uuid4())
 
     print("normal payload->>>",payload)
 
