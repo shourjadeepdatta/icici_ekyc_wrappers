@@ -3,7 +3,7 @@ from flask_cors import CORS
 import os
 
 
-CORS(app, methods=['GET', 'POST'])
+CORS(app, resources={r"/*": {"origins": "*", "methods": ["GET", "POST", "OPTIONS", "PUT", "DELETE"]}})
 
 
 if __name__ == "__main__":
