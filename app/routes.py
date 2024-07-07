@@ -232,3 +232,41 @@ def liveliness():
     return jsonify({"message":"error while fetching the liveliness","status_code":400}), 400
 
 
+@bp.route("/kyc/api/v1/esign",methods=["GET"])
+def esign():
+    # data = request.args
+    # print(data)
+    # session_id = data["session_id"]
+    # user_id = data["user_id"]
+
+    a = open("/Users/shourjadeepdatta/Desktop/get_details_wrapper/app/sample.txt")
+    b = a.read()
+    a.close()
+    b = eval(b)
+
+    # session_details = get_details(session_id)
+
+    # fathername_spousename = find_key_in_nested_dict(session_details,"father_spouse_fullname")
+    fathername_spousename = "lskfnsnsln"
+    # relation_type = find_key_in_nested_dict(session_details,"relation_type")
+    relation_type = "Father"
+    # salutation = find_key_in_nested_dict(session_details,"salutation")
+    salutation = "Mr"
+
+    b["fathername_spousename"] = fathername_spousename
+    b["father_spouse_fullname"] = fathername_spousename
+    b["relation_type"] = relation_type
+    b["salutation"] = salutation
+
+    headers = {
+                "Content-Type":"application/json"
+            }
+    #https://auat.vkyc.getkwikid.com:3357/v1/download_content/uat.vkyc.kwikid/videokyc/images/ICICI_uat_agentless/ICICI_93281518/546be576-dc7e-4eb8-8601-33c4fdf855e4/ICICI_93281518_signature_redact.jpg
+    signature_url  = "https://auat.vkyc.getkwikid.com:3357/v1/download_content/uat.vkyc.kwikid/videokyc/images/ICICI_uat_agentless/{}/{}/{}_signature_redact.jpg".format("8169935304","session_id_sample","8169935304")
+
+    payload = json.dumps({"user_details":b,"mobile":"8169935304","signature_url":signature_url})
+    print("final esign payload: {}".format(payload))
+    res = requests.request("POST","https://esign.uat.getkwikid.com:8071/initiateEsign?mobile="+"8169935304",headers=headers,data=payload)
+    # phog(user_id, "", "signature_captured",  "", "", "", "", "/cb",request_ip_address=None,reqbe="")
+    # phog(user_id, "", "esign_initiated",  "", "", "", "", "/cb",request_ip_address=None,reqbe="")
+    return res.text
