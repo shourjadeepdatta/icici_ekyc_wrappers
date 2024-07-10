@@ -22,15 +22,15 @@ import pytz
 
 bp = Blueprint("v1",__name__)
 
-# logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
-# logging.basicConfig(
-#     filename=os.getcwd()+"/logs/error.log",  # Specify the path to the log file
-#     level=logging.DEBUG,  # Set the logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-#     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'  # Define the format of the log messages
-# )
+logging.basicConfig(
+    filename=os.getcwd()+"/logs/error.log",  # Specify the path to the log file
+    level=logging.DEBUG,  # Set the logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'  # Define the format of the log messages
+)
 
-# logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.DEBUG)
 
 @bp.route('/ekyc_verify', methods=['POST'])
 def ekyc_verify():
@@ -73,16 +73,16 @@ def ekyc_verify():
         </VerifyPANDetails_eKYC>
     </soap12:Body>
     </soap12:Envelope>"""
-    print("the xml payload is ->>>",soap_envelope)
+    logger.debug("the xml payload is ->>>"+soap_envelope)
 
     api_url = 'https://eiscuat1.camsonline.com/cispl/services_kycenquiry_uat.asmx'
 
     headers = {'Content-Type': 'application/soap+xml; charset=utf-8'}
 
     response = requests.post(api_url, data=soap_envelope, headers=headers, verify=False,timeout=100)
-    # print("final payload ->>>",soap_envelope)
-    print("response is ->>>",response.text)
-    print("ekyc_response_status_code->>",response.status_code)
+    # logger.debug("final payload ->>>",soap_envelope)
+    logger.debug("response is ->>>"+response.text)
+    logger.debug("ekyc_response_status_code->>"+str(response.status_code))
     if response.status_code == 200:
         xml_response = response.content.decode('utf-8')
         json_response = xmltodict.parse(xml_response)
@@ -90,101 +90,95 @@ def ekyc_verify():
         if final_resp is None:
             return jsonify({"message":"cams api failed","status_code":500}), 500
         
-        print("final_resp is ->>>",final_resp)
+        logger.debug("final_resp is ->>>"+json.dumps(final_resp))
         ndml_kra = final_resp.get("NDMLKRA")
         cams_kra = final_resp.get("CAMSKRA")
         cvl_kra = final_resp.get("CVLKRA")
         dot_exkra = final_resp.get("DOTEXKRA")
         karvy_kra = final_resp.get("KARVYKRA")
         ndml_kra = "02"
-        print("kra is ->>>",ndml_kra)
+        logger.debug("kra is ->>>"+ndml_kra)
         if ndml_kra in ["02","04","07"] or cams_kra in ["02","04","07"] or cvl_kra in ["02","04","07"] or dot_exkra in ["02","04","07"] or karvy_kra in ["02","04","07"]:
-            download_payload = {
-                "APP_PAN_NO":data.get("APP_PAN_NO"),
-                "APP_PAN_DOB":data.get("APP_PAN_DOB"),
-                "APP_POS_CODE":data.get("APP_POS_CODE"),
-                "APP_OTHKRA_CODE":data.get("APP_OTHKRA_CODE"),
-                "APP_OTHKRA_BATCH":data.get("APP_OTHKRA_BATCH"),
-                "APP_IOP_FLG":data.get("APP_IOP_FLG"),
-                "APP_TOTAL_REC":data.get("APP_TOTAL_REC")
+            #download_payload = {
+                #"APP_PAN_NO":data.get("APP_PAN_NO"),
+                #"APP_PAN_DOB":data.get("APP_PAN_DOB"),
+                #"APP_POS_CODE":data.get("APP_POS_CODE"),
+                #"APP_OTHKRA_CODE":data.get("APP_OTHKRA_CODE"),
+                #"APP_OTHKRA_BATCH":data.get("APP_OTHKRA_BATCH"),
+                #"APP_IOP_FLG":data.get("APP_IOP_FLG"),
+                #"APP_TOTAL_REC":data.get("APP_TOTAL_REC")
+            #}
+            #headers = {"content_type":"application/json"}
+            #try:
+                #logger.debug("download_payload->>>>"+json.dumps(download_payload))
+                #down_response = requests.request("POST","https://api-dev.test.getkwikid.com/kyc/ekyc_download",data=json.dumps(download_payload),headers=headers,verify=False,timeout=1000)
+                #logger.debug("download_wrapper_response is->>>"+down_response.text)
+                #download_response = down_response.json()
+                #logger.debug("json respone->>"+json.dumps(download_response))
+                #if down_response.status_code == 200:
+                    #return jsonify(download_response), 200
+            #except Exception as e:
+                #logger.debug(str(e))
+                #return jsonify({"message":"some problem while calling the download wrapper","error":str(e),"status_code":500}), 500
+        
+        
+    
+    #return jsonify({"error": "Failed to send request", "status_code": 500}), 500
+    
+            current_datetime = datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+    
+            root_data = {
+                "APP_REQ_ROOT": {
+                    "APP_PAN_INQ": {
+                        "APP_PAN_NO": data.get("APP_PAN_NO"),
+                        "APP_PAN_DOB": data.get("APP_PAN_DOB"),
+                        "APP_IOP_FLG": data.get("APP_IOP_FLG"),# this should be different for download part
+                        "APP_POS_CODE": data.get("APP_POS_CODE"),
+                    },
+                    "APP_SUMM_REC": {
+                        "APP_OTHKRA_CODE": data.get("APP_OTHKRA_CODE"),
+                        "APP_OTHKRA_BATCH": data.get("APP_OTHKRA_BATCH"),
+                        "APP_REQ_DATE": current_datetime,
+                        "APP_TOTAL_REC": data.get("APP_TOTAL_REC"),
+                    },
+                }
             }
-            headers = {"content_type":"application/json"}
-            try:
-                down_response = requests.request("POST","http://localhost:5000/ekyc_download",data=json.dumps(download_payload),headers=headers,verify=False,timeout=100)
-                print("download_wrapper_response is->>>",down_response.text)
-                download_response = down_response.json()
-                print("json respone->>",download_response)
-                if down_response.status_code == 200:
-                    return jsonify(download_response), 200
-            except Exception as e:
-                print(str(e))
-                return jsonify({"message":"some problem while calling the download wrapper","error":str(e),"status_code":500}), 500
-        
-        
-    
-    return jsonify({"error": "Failed to send request", "status_code": 500}), 500
 
+            root = dict_to_xml("APP_REQ_ROOT", root_data["APP_REQ_ROOT"])
+            xml_str = ET.tostring(root, encoding="unicode")
+            logger.debug("the xml payload is ->>>"+xml_str)
 
-@bp.route('/ekyc_download', methods=['POST'])
-def ekyc_download():
-    data = request.get_json()
-    
-    if data is None:
-        return jsonify({"message":"request payload is empty","status_code":400}), 400
-    
-    current_datetime = datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
-    
-    root_data = {
-        "APP_REQ_ROOT": {
-            "APP_PAN_INQ": {
-                "APP_PAN_NO": data.get("APP_PAN_NO"),
-                "APP_PAN_DOB": data.get("APP_PAN_DOB"),
-                "APP_IOP_FLG": data.get("APP_IOP_FLG"),# this should be different for download part
-                "APP_POS_CODE": data.get("APP_POS_CODE"),
-            },
-            "APP_SUMM_REC": {
-                "APP_OTHKRA_CODE": data.get("APP_OTHKRA_CODE"),
-                "APP_OTHKRA_BATCH": data.get("APP_OTHKRA_BATCH"),
-                "APP_REQ_DATE": current_datetime,
-                "APP_TOTAL_REC": data.get("APP_TOTAL_REC"),
-            },
-        }
-    }
+            api_url = 'https://eiscuat1.camsonline.com/cispl/services_kycenquiry_uat.asmx'
 
-    root = dict_to_xml("APP_REQ_ROOT", root_data["APP_REQ_ROOT"])
-    xml_str = ET.tostring(root, encoding="unicode")
-    print("the xml payload is ->>>",xml_str)
+            soap_envelope = f"""<?xml version="1.0" encoding="utf-8"?>
+        <soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">
+          <soap12:Body>
+            <DownloadPANDetails_eKYC xmlns="https://camskra.com/">
+              <InputXML>{xml_str}</InputXML>
+              <USERNAME>THINKEKYC</USERNAME>
+              <POSCODE>L</POSCODE>
+              <PASSWORD>Sb0j0j0GuBBCgOUVITiJaw==</PASSWORD>
+              <PASSKEY>UAT</PASSKEY>
+            </DownloadPANDetails_eKYC>
+          </soap12:Body>
+        </soap12:Envelope>"""
+            logger.debug("the xml payload is ->>>"+soap_envelope)
 
-    api_url = 'https://eiscuat1.camsonline.com/cispl/services_kycenquiry_uat.asmx'
-
-    soap_envelope = f"""<?xml version="1.0" encoding="utf-8"?>
-<soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">
-  <soap12:Body>
-    <DownloadPANDetails_eKYC xmlns="https://camskra.com/">
-      <InputXML>{xml_str}</InputXML>
-      <USERNAME>THINKEKYC</USERNAME>
-      <POSCODE>L</POSCODE>
-      <PASSWORD>Sb0j0j0GuBBCgOUVITiJaw==</PASSWORD>
-      <PASSKEY>UAT</PASSKEY>
-    </DownloadPANDetails_eKYC>
-  </soap12:Body>
-</soap12:Envelope>"""
-    print("the xml payload is ->>>",soap_envelope)
-
-    headers = {'Content-Type': 'application/soap+xml; charset=utf-8'}
-    response = requests.post(api_url, data=soap_envelope, headers=headers, verify=False,timeout=100)
-    print(response.text)
-    if response.status_code == 200:
-        xml_response = response.content.decode('utf-8')
-        json_response = xmltodict.parse(xml_response)
-        final_resp = json_response.get("soap:Envelope",{}).get("soap:Body",{}).get("DownloadPANDetails_eKYCResponse",{}).get("DownloadPANDetails_eKYCResult",{}).get("ROOT",{}).get("KYC_DATA")
-        print("final_resp->>>",final_resp)
-        if final_resp is None:
-            return jsonify({"message":"cams api failed","status_code":500}), 500
-        
-        return jsonify(final_resp), 200
-    
-    return jsonify({"error": "Failed to send request", "status_code": response.status_code}), response.status_code
+            headers = {'Content-Type': 'application/soap+xml; charset=utf-8'}
+            down_response = requests.post(api_url, data=soap_envelope, headers=headers, verify=False,timeout=100)
+            logger.debug(down_response.text)
+            if down_response.status_code == 200:
+                xml_response = down_response.content.decode('utf-8')
+                json_response = xmltodict.parse(xml_response)
+                final_resp = json_response.get("soap:Envelope",{}).get("soap:Body",{}).get("DownloadPANDetails_eKYCResponse",{}).get("DownloadPANDetails_eKYCResult",{}).get("ROOT",{}).get("KYC_DATA")
+                logger.debug("final_resp->>>"+json.dumps(final_resp))
+                if final_resp is None:
+                    return jsonify({"message":"cams api failed","status_code":500}), 500
+                
+                return jsonify(final_resp), 200
+            
+        return jsonify({"error": "Failed to send request", "status_code": response.status_code}), response.status_code
+    pass
 
 
 @bp.route("/check_liveliness",methods=["POST"])
@@ -200,7 +194,7 @@ def liveliness():
     # Format the new time as a string
     formatted_new_time = new_time.strftime('%Y-%m-%dT%H:%M:%S')
 
-    print("New Timestamp (UTC + 5:30):", formatted_new_time)
+    logger.debug("New Timestamp (UTC + 5:30):"+str(formatted_new_time))
 
     payload["UserID"] = "ICSDK360_UAT"
     payload["Password"] = "bzqUnl1g7At2NlS"
@@ -208,7 +202,7 @@ def liveliness():
     payload["TimeStamp"] = str(formatted_new_time)
     payload["SessionID"] = str(uuid.uuid4())
 
-    print("normal payload->>>",payload)
+    logger.debug("normal payload->>>"+json.dumps(payload))
 
     encrypted_data_payload_for_api = CAMSEncryptionCKYC(payload)
 
@@ -217,56 +211,17 @@ def liveliness():
 
     headers = {"Authorization":"Bearer dGVzdGluZyBkYXRhIGZvciBDQU1TIFBBTiBWYWxpZGF0aW9uIEFQSSBJbnRlZ3JhdGlvbiA="}
 
-    print("headers->>",headers)
-    print("encrypted payload final->>>",encrypted_data_payload_for_api)
+    # logger.debug("headers->>",headers)
+    logger.debug("encrypted payload final->>>"+encrypted_data_payload_for_api)
 
 
     try:
         response = requests.post(url,headers=headers,data=encrypted_data_payload_for_api,verify=False,timeout=100)
-        print("encrypted response->>>",response.text)
+        logger.debug("encrypted response->>>"+response.text)
         decrypted_response = CAMSDecryptionCKYC(response.text)
         return jsonify(json.loads(decrypted_response))
     except Exception as e:
-        print("some problem->>>",str(e))
+        logger.debug("some problem->>>"+str(e))
 
     return jsonify({"message":"error while fetching the liveliness","status_code":400}), 400
 
-
-@bp.route("/kyc/api/v1/esign",methods=["GET"])
-def esign():
-    # data = request.args
-    # print(data)
-    # session_id = data["session_id"]
-    # user_id = data["user_id"]
-
-    a = open("/Users/shourjadeepdatta/Desktop/get_details_wrapper/app/sample.txt")
-    b = a.read()
-    a.close()
-    b = eval(b)
-
-    # session_details = get_details(session_id)
-
-    # fathername_spousename = find_key_in_nested_dict(session_details,"father_spouse_fullname")
-    fathername_spousename = "lskfnsnsln"
-    # relation_type = find_key_in_nested_dict(session_details,"relation_type")
-    relation_type = "Father"
-    # salutation = find_key_in_nested_dict(session_details,"salutation")
-    salutation = "Mr"
-
-    b["fathername_spousename"] = fathername_spousename
-    b["father_spouse_fullname"] = fathername_spousename
-    b["relation_type"] = relation_type
-    b["salutation"] = salutation
-
-    headers = {
-                "Content-Type":"application/json"
-            }
-    #https://auat.vkyc.getkwikid.com:3357/v1/download_content/uat.vkyc.kwikid/videokyc/images/ICICI_uat_agentless/ICICI_93281518/546be576-dc7e-4eb8-8601-33c4fdf855e4/ICICI_93281518_signature_redact.jpg
-    signature_url  = "https://auat.vkyc.getkwikid.com:3357/v1/download_content/uat.vkyc.kwikid/videokyc/images/ICICI_uat_agentless/{}/{}/{}_signature_redact.jpg".format("8169935304","session_id_sample","8169935304")
-
-    payload = json.dumps({"user_details":b,"mobile":"8169935304","signature_url":signature_url})
-    print("final esign payload: {}".format(payload))
-    res = requests.request("POST","https://esign.uat.getkwikid.com:8071/initiateEsign?mobile="+"8169935304",headers=headers,data=payload)
-    # phog(user_id, "", "signature_captured",  "", "", "", "", "/cb",request_ip_address=None,reqbe="")
-    # phog(user_id, "", "esign_initiated",  "", "", "", "", "/cb",request_ip_address=None,reqbe="")
-    return res.text
