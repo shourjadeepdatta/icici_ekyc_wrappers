@@ -9,6 +9,7 @@ dist/
 
 # Compiled Java class files
 *.class
+.env
 
 # Compiled Python bytecode
 *.py[cod]
@@ -39,6 +40,10 @@ Thumbs.db
 *.app
 *.exe
 *.war
+*.pem
+*.cer
+*.ppk
+*.bin
 
 # Large media files
 *.mp4
@@ -47,4 +52,4 @@ Thumbs.db
 *.flv
 *.mov
 *.wmv
-
+*.out
