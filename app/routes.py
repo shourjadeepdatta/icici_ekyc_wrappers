@@ -1,4 +1,5 @@
 from flask import request, Blueprint, g
+from urllib.parse import urlencode
 import requests
 from flask import jsonify
 import datetime
@@ -16,7 +17,7 @@ import logging
 import xml.etree.ElementTree as ET
 from app.helpers import dict_to_xml
 import xmltodict
-from app.helpers import CAMSEncryptionCKYC, CAMSDecryptionCKYC
+from app.helpers import CAMSEncryptionCKYC, CAMSDecryptionCKYC,encrypt_kra_push_payload,decrypt_kra_push_response,json_to_urlencoded
 import uuid
 import pytz
 
@@ -32,6 +33,66 @@ logging.basicConfig(
 
 logger.setLevel(logging.DEBUG)
 
+@bp.route('/health',methods=['GET'])
+def health():
+    return "ok"
+
+@bp.route("/uat/kra_push",methods=["POST"])
+def uat_kra_push():
+    data = request.get_json()
+    payload = data.get("payload",{})
+    url = "https://eiscuat1.camsonline.com/KRA_MODIFY_API/test/EIPVDetail/KYC_MODIFY"
+    #url = "https://camskra.com/EIPVAPI_MOD/EIPVDetail/KYC_MODIFY"
+    encrypted_data = encrypt_kra_push_payload(json.dumps(payload),"02CC66670B0E9353F5FC83B20A696D9F")
+    #logger.debug("encrypted_data->>"+encrypted_data)
+    with open("encrypted_payload","w") as f:
+        f.write(encrypted_data)
+
+    headers = {"x-api-key":"02CC66670B0E9353F5FC83B20A696D9F"}
+    try:
+        response = requests.request("POST",url=url,data=encrypted_data,headers=headers,verify=False,timeout=100)
+        logger.debug("kra push response is"+response.text)
+        resp = response.text
+        decrypted_response = decrypt_kra_push_response(response.text,"02CC66670B0E9353F5FC83B20A696D9F")
+        logger.debug("decrypted_response is->>"+json.dumps(decrypted_response))
+    except Exception as e:
+        logger.debug("some problem while pushing to kra"+str(e))
+
+    return jsonify({"kra_resp":decrypted_response})
+
+@bp.route("/kra_push",methods=["POST"])
+def kra_push():
+    data = request.get_json()
+    payload = data.get("payload",{})
+    encoded_string = json_to_urlencoded(payload)
+    #flat_payload = {**data.get("payload",{}), **{"fatca[{}]".format(k): v for k, v in data.get("payload",{})['fatca'].items()}}
+    #del flat_payload['fatca']
+    #encoded_string = "APP_USER_ID=CAMSEKYC&APP_PASSWORD=7RJZPK8YXdFrzRj3a4FQAQ%3d%3d&APP_OTHER_KRA=CAMSEKYC&APP_PASSKEY=cams&APP_PAN=AAAPB6666A&APP_FATCA_TAX_JURISDICTION=Y&APP_FATCA_COUNTRYOF_JURISDICTION=IN&APP_FATCA_PLACE_BIRTH=CHENNAI&APP_FATCA_COUNTRY_BIRTH=IN&APP_INCOME=03&APP_OCCUPATION=01&APP_NETWRTH=123456789&APP_NETWORTH_DT=11-Aug-2024&APP_FATCA_DATE_DECLARATION=11-Aug-2024&APP_FATCA_COUNTRY_RESIDENCY_1=AL&APP_FATCA_TAX_IDENTIFICATION_NO_1=&APP_FATCA_TAX_EXEMPT_FLAG_1=Y&APP_FATCA_TAX_EXEMPT_REASON_1=03&APP_FATCA_COUNTRY_RESIDENCY_2=AF&APP_FATCA_TAX_IDENTIFICATION_NO_2=&APP_FATCA_TAX_EXEMPT_FLAG_2=Y&APP_FATCA_TAX_EXEMPT_REASON_2=05&APP_FATCA_COUNTRY_RESIDENCY_3=098&APP_REQ_TYPE=1&APP_FATCA_TAX_IDENTIFICATION_NO_3=&APP_FATCA_TAX_EXEMPT_FLAG_3=Y&APP_FATCA_TAX_EXEMPT_REASON_3=01&APP_FATCA_COUNTRY_RESIDENCY_4=AI&APP_FATCA_TAX_IDENTIFICATION_NO_4=&APP_FATCA_TAX_EXEMPT_FLAG_4=Y&APP_FATCA_TAX_EXEMPT_REASON_4=01&APP_POS_CODE=&APP_AMC=&APP_POL_CONN=NA"
+    #encoded_string = urlencode(flat_payload)
+    encoded_string = encoded_string + "&APP_PASSWORD=wjpPWZSYUghHX09AaF55uw=="
+    encoded_string = encoded_string.replace("%3D%3D","==")
+    logger.debug("plain text payload is->>>>"+encoded_string)
+    #url = "https://eiscuat1.camsonline.com/KRA_MODIFY_API/test/EIPVDetail/KYC_MODIFY"
+    url = "https://camskra.com/EIPVAPI_MOD/EIPVDetail/KYC_MODIFY"
+    encrypted_data = encrypt_kra_push_payload(encoded_string,"B30015F366611AD1C856FF4B193FD9EA")
+    #logger.debug("encrypted_data->>"+encrypted_data)
+    with open("encrypted_payload","w") as f:
+        f.write(encrypted_data)
+    with open("encoded_payload","w") as f:
+        f.write(encoded_string)
+
+    headers = {"x-api-key":"B30015F366611AD1C856FF4B193FD9EA","Content-Type":"application/x-www-form-urlencoded"}
+    try:
+        response = requests.request("POST",url=url,data=encrypted_data,headers=headers,verify=False,timeout=100)
+        logger.debug("kra push response is"+response.text)
+        resp = response.text
+        decrypted_response = decrypt_kra_push_response(response.text,"B30015F366611AD1C856FF4B193FD9EA")
+        logger.debug("decrypted_response is->>"+json.dumps(decrypted_response))
+    except Exception as e:
+        logger.debug("some problem while pushing to kra"+str(e))
+
+    return jsonify({"kra_resp":decrypted_response})
+
 @bp.route('/ekyc_verify', methods=['POST'])
 def ekyc_verify():
     data = request.get_json()
@@ -41,17 +102,33 @@ def ekyc_verify():
     
     current_datetime = datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
 
+    #root_data = {
+        #"APP_REQ_ROOT": {
+            #"APP_PAN_INQ": {
+                #"APP_PAN_NO": data.get("APP_PAN_NO"),
+                #"APP_PAN_DOB": data.get("APP_PAN_DOB"),
+                #"APP_IOP_FLG": data.get("APP_IOP_FLG"),# this part is different for verify part
+                #"APP_POS_CODE": data.get("APP_POS_CODE"),
+            #},
+            #"APP_SUMM_REC": {
+                #"APP_OTHKRA_CODE": data.get("APP_OTHKRA_CODE"),
+                #"APP_OTHKRA_BATCH": data.get("APP_OTHKRA_BATCH"),
+                #"APP_REQ_DATE": current_datetime,
+                #"APP_TOTAL_REC": data.get("APP_TOTAL_REC"),
+            #},
+        #}
+    #}
     root_data = {
         "APP_REQ_ROOT": {
             "APP_PAN_INQ": {
                 "APP_PAN_NO": data.get("APP_PAN_NO"),
                 "APP_PAN_DOB": data.get("APP_PAN_DOB"),
-                "APP_IOP_FLG": data.get("APP_IOP_FLG"),# this part is different for verify part
-                "APP_POS_CODE": data.get("APP_POS_CODE"),
+                "APP_IOP_FLG": "IE",# this part is different for verify part
+                "APP_POS_CODE": "P",
             },
             "APP_SUMM_REC": {
-                "APP_OTHKRA_CODE": data.get("APP_OTHKRA_CODE"),
-                "APP_OTHKRA_BATCH": data.get("APP_OTHKRA_BATCH"),
+                "APP_OTHKRA_CODE": "IBLIPRULIV",
+                "APP_OTHKRA_BATCH": "1",
                 "APP_REQ_DATE": current_datetime,
                 "APP_TOTAL_REC": data.get("APP_TOTAL_REC"),
             },
@@ -66,16 +143,17 @@ def ekyc_verify():
     <soap12:Body>
         <VerifyPANDetails_eKYC xmlns="https://camskra.com/">
         <InputXML>{input_xml}</InputXML>
-        <USERNAME>THINKEKYC</USERNAME>
-        <POSCODE>L</POSCODE>
-        <PASSWORD>Sb0j0j0GuBBCgOUVITiJaw==</PASSWORD>
-        <PASSKEY>UAT</PASSKEY>
+        <USERNAME>IBLIPRULIV</USERNAME>
+        <POSCODE>P</POSCODE>
+        <PASSWORD>wjpPWZSYUghHX09AaF55uw==</PASSWORD>
+        <PASSKEY>LIVE</PASSKEY>
         </VerifyPANDetails_eKYC>
     </soap12:Body>
     </soap12:Envelope>"""
     logger.debug("the xml payload is ->>>"+soap_envelope)
 
-    api_url = 'https://eiscuat1.camsonline.com/cispl/services_kycenquiry_uat.asmx'
+    #api_url = 'https://eiscuat1.camsonline.com/cispl/services_kycenquiry_uat.asmx'
+    api_url = "https://www.camskra.com/services_kycenquiry.asmx"
 
     headers = {'Content-Type': 'application/soap+xml; charset=utf-8'}
 
@@ -127,17 +205,33 @@ def ekyc_verify():
     
             current_datetime = datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
     
+            #root_data = {
+                #"APP_REQ_ROOT": {
+                    #"APP_PAN_INQ": {
+                        #"APP_PAN_NO": data.get("APP_PAN_NO"),
+                        #"APP_PAN_DOB": data.get("APP_PAN_DOB"),
+                        #"APP_IOP_FLG": data.get("APP_IOP_FLG"),# this should be different for download part
+                        #"APP_POS_CODE": data.get("APP_POS_CODE"),
+                    #},
+                    #"APP_SUMM_REC": {
+                        #"APP_OTHKRA_CODE": data.get("APP_OTHKRA_CODE"),
+                        #"APP_OTHKRA_BATCH": data.get("APP_OTHKRA_BATCH"),
+                        #"APP_REQ_DATE": current_datetime,
+                        #"APP_TOTAL_REC": data.get("APP_TOTAL_REC"),
+                    #},
+                #}
+            #}
             root_data = {
                 "APP_REQ_ROOT": {
                     "APP_PAN_INQ": {
                         "APP_PAN_NO": data.get("APP_PAN_NO"),
                         "APP_PAN_DOB": data.get("APP_PAN_DOB"),
-                        "APP_IOP_FLG": data.get("APP_IOP_FLG"),# this should be different for download part
-                        "APP_POS_CODE": data.get("APP_POS_CODE"),
+                        "APP_IOP_FLG": "IS",# this should be different for download part
+                        "APP_POS_CODE": "P",
                     },
                     "APP_SUMM_REC": {
-                        "APP_OTHKRA_CODE": data.get("APP_OTHKRA_CODE"),
-                        "APP_OTHKRA_BATCH": data.get("APP_OTHKRA_BATCH"),
+                        "APP_OTHKRA_CODE": "IBLIPRULIV",
+                        "APP_OTHKRA_BATCH": "1",
                         "APP_REQ_DATE": current_datetime,
                         "APP_TOTAL_REC": data.get("APP_TOTAL_REC"),
                     },
@@ -148,17 +242,19 @@ def ekyc_verify():
             xml_str = ET.tostring(root, encoding="unicode")
             logger.debug("the xml payload is ->>>"+xml_str)
 
-            api_url = 'https://eiscuat1.camsonline.com/cispl/services_kycenquiry_uat.asmx'
+            #api_url = 'https://eiscuat1.camsonline.com/cispl/services_kycenquiry_uat.asmx'
+            api_url = "https://www.camskra.com/services_kycenquiry.asmx"
+            #api_url = "https://www.camskra.com/EIPVAPI/EIPVDetail/IPVdetailsupd"
 
             soap_envelope = f"""<?xml version="1.0" encoding="utf-8"?>
         <soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">
           <soap12:Body>
             <DownloadPANDetails_eKYC xmlns="https://camskra.com/">
               <InputXML>{xml_str}</InputXML>
-              <USERNAME>THINKEKYC</USERNAME>
-              <POSCODE>L</POSCODE>
-              <PASSWORD>Sb0j0j0GuBBCgOUVITiJaw==</PASSWORD>
-              <PASSKEY>UAT</PASSKEY>
+              <USERNAME>IBLIPRULIV</USERNAME>
+              <POSCODE>P</POSCODE>
+              <PASSWORD>wjpPWZSYUghHX09AaF55uw==</PASSWORD>
+              <PASSKEY>LIVE</PASSKEY>
             </DownloadPANDetails_eKYC>
           </soap12:Body>
         </soap12:Envelope>"""
