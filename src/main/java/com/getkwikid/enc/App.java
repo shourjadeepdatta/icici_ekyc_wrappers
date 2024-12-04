@@ -15,7 +15,6 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
-import io.github.cdimascio.dotenv.Dotenv;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -146,7 +145,8 @@ public class App {
 
 	public byte[] generateIv(String cipherAlgorithm) throws NoSuchAlgorithmException, NoSuchPaddingException {
 		Cipher cipher = Cipher.getInstance(cipherAlgorithm);
-		SecureRandom random = SecureRandom.getInstanceStrong();
+		//SecureRandom random = SecureRandom.getInstanceStrong();
+		SecureRandom random = new SecureRandom();
 		byte[] iv = new byte[cipher.getBlockSize()];
 		random.nextBytes(iv);
 		return iv;
@@ -177,7 +177,6 @@ public class App {
 
 		App enc=new App();
 		port(4366);
-		Dotenv dotenv = Dotenv.load();
 		//byte[] EncryptedKey;
 		//byte[] encodedEncryptedKey=null;
 		//byte[] EncryptedData;
@@ -194,16 +193,13 @@ public class App {
 	//		e.printStackTrace();
 	//		privateKey="";
 	//	}
-		get("/health", (request,response) -> {
-			return "ok";
-		});
 		post("/decrypt", (request, response) -> {
 			try{
 			//String privateKey="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";
 			//String privateKey="MIIJQQIBADANBgkqhkiG9w0BAQEFAASCCSswggknAgEAAoICAQCt4YkKdbRu2vaGphlBN94IoRFEY0iRwKQWpKh3NAfD0Ncd7nKYcUuaccEaBqfsDgIdQRPSQIptkf1mgq3Uj58s7Z4hF65FbBgNDWnhoahxOIM9mP6CWELdzvYavtl11gSGLtJ9MDe8Bm5ocQAU5vVw4EMmYPkHu3aSUuy3ntullB44wFwBphXHGe6w/4t6x95nYtlA6i2d7dU4g209C1e015P5Bz7hu6UnP5jIlwzXDkDZ+WJDrgUgkABwnYHknJ3rdDd6LK8HtP1HlEq+O45EVpdr+MSxFid/v/JI5UxeeujP0HCqGPlLRPXySjTHnwZi1OMdaLqGnodpkv3lr8w+8btJaZfjO6+8xCZjnuJVviz9FbKQfMiGyurPNMRfEaBEnfhmDNGBSQDgJ9bjZKFgUFJIEuIz7EGqO6PmjZcsx0liie894lItecPXHQWWsbQdbtWrwpoE1IJE278x/SZ/HlYE2pLtq3ddXC6mZ53eJbhgHU630rsCD0gQTEALAPfmPN7U3sNLwuXh4Pp1d3CyEhzUMoQVHFrxZLmPnd/cTi/cJ23ee0Yt0S9un67as/G6J1I1PF8JR4qkm1T1JYdcUaMFCMoDpOnet3mm8uPQBi9HaC0si8nt3C9TRfY/+thhrmNzL2heRfc2JJKP3c0cZ1wQN2hVF8ybq3oaaXGlAQIDAQABAoICAHF78moeOj3jsORegbscEFDHdrKQretatH2Gx+DM14iIw+1oE+jEgNhzB9nJoE0jM2QOdjZSI0ax8pW2EmfZuMSk7QCiKP5sNyJFr+YwEPScMqPAN9OwcSu9CMiZ6OnMXbWJ150XHDkeZW7K2YfK2UPrSkhBICdYxWFot9B74NUnX7YgbawxzqLcnPluP4VJ7zDAxhRlApLBh9jThjdCMOL5lD0C6pp/UqHUEw5P73RofBEHf4e2iuges/rMAdvIEBV9Czw076NzD59o/IM98XNOpJM2kIEXeX4aM7I53WcIhuwjGXUayZHDl1Wj8uCaPJvCX9xw3tQ/oRdZdVY0L3ONfT/47m/DMgfUnpgggdisOyxKhWeUtsp2A15fGybxkYe7B8OgArQRVXRYujhsGVCVGJ8oHmwP2+1pPV10/eNtDTUHc47FAo0IXFms7ueA9jIJ2ld1n8nXWatALMidOGykxZV82fOowzrwCnKR8uugCGvxz/8PdEbmz+/Tz36+7l1i0C9xd0ULN8+rM0ZCEw4qy+J3+yuRTsRJk6tB1D0NkW2ng2pbH4qJh2gFuOy8B/N6rU3VyKE/wshxLGH9VQycgU52+dLRUR0y5xXYb+OzzKuRltHnIaS8sedFpnvBWs/fWgyPOOp3NW8e5dlqPTRiz40VF6nZFapUBMjPtn7xAoIBAQDgRIofTOYchbMbcMZDLBuLhLIyvKQZqrcwnHqYrcwGu5wqtq8hxaDlUj0nDIrEewG75U2NUYg7txowY+BxEjfbr8mNPRxsgIgjQP5yJVhMFNwjt8c/yRtnyMNq++GMckHRB893+HuKa8AUIdjDUzvcoqqDesBOQEn0Uf4mf1H3njy6rBniIuS8ovucBPu4qs+2GBUWENbz5xm/rFrQA6KzPB5tyYcnu+zJD7mXH58PtjZMqQoYfNGxZADRHzHHyhTd95X6rbZCznbYOS411BCEUniAr/77/+w5lty6ICIDljdbOkDnFYX4XmodhcZqx4X7d7CLbTuUAt284gZQHt0FAoIBAQDGe+Ex0s3ajvVDkikadmzd/MHDnlriEeAqJwrH5t96z7n0B1+9orZO22CMs0jmnq1y4lIVxzrHgY86ng0l0XAHIjHXmk2Bzh1JGKQNCKoU1lRtbU6Mh0M31NX+IWOXrb8X5KwH5xf+1E1RsI65ZFq43KjhlWGwsG1baNlYNITVApC3oSvwfZQC7CoRflVwBn3jg7l3zwPJ4tyzN/Jd4eGykP3r6QbXeEnxb0sjeYjIlneihBsWcDmbbfmM5+VvWm4HQyfnGqI4kKN0F9u9m5UuwF1p3Z/puULK7+rVRlvgZFzcppcnS4n8z5CED4Ic0KC4wL7CS3Y1EbRAAivPEIjNAoIBABtZQF7Aye8Afu8BuavHXTSOYgy95GUc5GoRKwIjb5YCmvC6hnDf4NcWSE7SwLllJrj7JZHuN2bQ1WjBRUWEqzsnHLUUlrrEkdV6v4y78SCWCqJwbuPgam8llG8feEngRRZwlWRT8PzYVvwdhImNROeLDrAp7/ma7WnV9eBL9nrz2QQKqL1i8/HtDjHgibHjYqEaHrgqJYxoykMNiaWES/r/gdZxlQHLcPyz5jX/rS4FUmnW01xZHFk9kLvvyepLQnAvGSMQvAE5nFSR5Ii766e3Ruqqi7W/Z9c+BnzMHlnBn86INBH6FfRLzzT6c0/iNPyNhAH8uB88mj3Gcm6i1OECggEAV+z4zYF8/5zkuZI98yMTByO5EldMG2mfzAyPkg6MYXM0BQ5fMzqpWDWGh83ENaWFYKcxhcREHa0fLfBmEqK85ewX+FK6kw4jmwX3Zm64KZLow7DwYwBonosCYRmZbM/jH0qFitqsno6d0dpM34O9TLczePsb05HUX/IKljBtx47jXPVg6aA3uTO1TxqP7phxnB/2QUTLgNumuR3HmB9AREJGugL4rOr0lqeeuZBVL8a4KJ4tAbulSV1mdy0jTjjZFQ6C1rXNtxEb14naJhyN8a/1sbgj5v3SwOOXO/N3L+hF2tlRjG7CKeQpONdF5E3nZPC9kIStUMUO/Gv5zDie4QKCAQBOpTmX7656ezacYcNvj9JIZau3LG0vXAGTBJ+EjCVFRXlRSUZyuM4IXEbkUWQy4avDOqEtN3GCyhNBzQ2djbW0emXBIRlBC97MPFNlJWwmbF7JTImPuoHuExsEHcQWhBzV4/VxBsmXlmScpbDvveKGnmK0EAeyb0hu6Xm08sqNoOzRC6hTqWZeEzgXawVJ07Bi9+Fpd4hEDC4m48sa49pupoQqaK+2JZpwiBueijPF2FPFqew7gLW4miG0JJyNKJpRePL2/LHZ9vPLIDS81jKXe5ui0EY1evUP6uKKEN+KHrw4v0UnauTbzbDLqysBTJMXfS9PydM+cqj0OWHp7Rth";
-
-			String domain = "UAT";
-			String privateKey = dotenv.get(domain+"_PRT_KEY");
+			
+			String meraAchaWaalaprivateKey = "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";
+			String privateKey="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";
 
 			String bodytodecrypt = new String(request.body());
 			//String encodedEncryptedKeyRes = "";
@@ -249,6 +245,62 @@ public class App {
 		   }
 
 		});
+
+		get("/health",(request,response)->{
+			return "ok";
+		});
+
+		post("/test/encrypt", (request, response) -> {
+                         // Create something
+                         //String publicKey="MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAsIwVStQi6aSMLBZu3vhafOR5NTMNp+TXPwyk/6VoaSQfDnZaSQPYhdt4a8X215KwXwpIL1eBJOH2NW8jp5AO4WauHWEwEggJvPaC8FgzZtDhjYexOk+/yaDbY7U9BofJSU76VIBxRoN7YmAknAKrpfn0ukXPPuUx5Ny/cy85nunqo5M8Acf2VVwSGZQMBZFSm3yxYOdS4laDlM+s1w+5wLDMjYSgIMm76rpVdO3hs2n2dSAYM6XMOaqNDwHdZk6n8lPgivYVXjTz7KU9eqkFnecWvn2ugRI7hgrplZxS020k0QBeYd0AH7zJZKS3Xo5VycL01UO/WYOQvB7v8lge7TiQZ3CCrnuykqcJ/r5DMLO/cKQAeZi+LQ95FQg39joO8G7bfO7+a3Gs8Re3mRW7AA8x1aEn7XZMOUu4l4IfNvwh20V4cz3xvGXdr9ZLFvgX5593MxCDBjkiaynzG8gmLVTIoaItPy+khwO/vjfWka0L3yvT3l55R4H/KRKxlHaY58HVdLbuWrUoH/4gbkYFYFC+rejBW5wbE0FJmWIkEXLKsTlXcsn6eAzi4BRxidQ/4rIEf8qWpSFzJobivBnWe4bpBA19g3N47PDpD5xS6uj7ODSBhEn22UnsiDaGV+RhsXYA/xqaJCjB6+W7CN00Lowr87sUoT4VAK8wrOk4D5sCAwEAAQ==";  // Public Key
+
+                                //String publicKey="MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAqcsOb7b8zjUwcCAfPaCOrTZjjZbmJWnPyBrDiCYM/zR1G7zjU0GrExHBTQEC4BpJY1d2TaNpXfGJep44wKndURXzS23DQ6uQM1kahxLyH23XJ2v8EQs9SlFUvhsmY46AwaL6AGRTaP4zOllOg2wOIg1uymkpE4HM7ev9LzaOfwaYg5bhTS1FB7ZTOg+JfWRcPwPcaBO45rObGkwqGDM/91YKa+pZqYO4HJHx5hxH3nEsE9Det/fsBhABnX8cwK98hHOsghPV4wSEYkxWnwSTt9knjui0LI5fGBmu5mLEDWI/l7dvpM7cquPzOfyORJ961lSoT+rOKO2wddLmTztgxxKOPTh5wq9jFatJcHKN+NcRij2lcGfaCH2V+iYe3GtMt4U1wAWawObF35mMGsWMc/+KNSWHomI6kr2HCpzbe3O6XKWCyogQv+kRDcVYKDap2ECWY/5mJHJrzTxZh75wBrZp0QPoZtOsHtHTFDtGUCYUqj+rHzOaA3majACMtvdWFlux6aIprYvHWxg/qTBUMY80uXLsT5fyYx3z0S1MfzEn9ul7tYYYH4eP/ZbHrjQI7h36kEvyok+gZ6bqqDKV5MfStBT3H63fE3R4bhhoobshLRH4/txtrjEmBOMRJg8eQUAk1wOseSOiEMjVDfiKK5Gw0ziXwdrY8YW0M64CEx0CAwEAAQ==";
+                                //String publicKey="MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAsIwVStQi6aSMLBZu3vhafOR5NTMNp+TXPwyk/6VoaSQfDnZaSQPYhdt4a8X215KwXwpIL1eBJOH2NW8jp5AO4WauHWEwEggJvPaC8FgzZtDhjYexOk+/yaDbY7U9BofJSU76VIBxRoN7YmAknAKrpfn0ukXPPuUx5Ny/cy85nunqo5M8Acf2VVwSGZQMBZFSm3yxYOdS4laDlM+s1w+5wLDMjYSgIMm76rpVdO3hs2n2dSAYM6XMOaqNDwHdZk6n8lPgivYVXjTz7KU9eqkFnecWvn2ugRI7hgrplZxS020k0QBeYd0AH7zJZKS3Xo5VycL01UO/WYOQvB7v8lge7TiQZ3CCrnuykqcJ/r5DMLO/cKQAeZi+LQ95FQg39joO8G7bfO7+a3Gs8Re3mRW7AA8x1aEn7XZMOUu4l4IfNvwh20V4cz3xvGXdr9ZLFvgX5593MxCDBjkiaynzG8gmLVTIoaItPy+khwO/vjfWka0L3yvT3l55R4H/KRKxlHaY58HVdLbuWrUoH/4gbkYFYFC+rejBW5wbE0FJmWIkEXLKsTlXcsn6eAzi4BRxidQ/4rIEf8qWpSFzJobivBnWe4bpBA19g3N47PDpD5xS6uj7ODSBhEn22UnsiDaGV+RhsXYA/xqaJCjB6+W7CN00Lowr87sUoT4VAK8wrOk4D5sCAwEAAQ==";
+
+                                //String publicKey="MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAsqa0/WueaY2OGmIge41CWNPc6UnjF8N0WR/p7xn9BeXNtfstyJL/sJB3XLQvLi9ijWrUSv8cMbfRVStAYneGEFAY1821+owU/5LC7P241lGF54yr2h8pAHao7pmFrDzQ6QjXmE8wcEDw77nB+osLPXQv3+hcLm4y1ZOQCNxsPaHYdtM6hzJT89R1hVYmOMTeamwlQ0Ee+ZWqZ2EDtZDFkL8anZ0WCo8td9d+w4YKH2nOtXiPGjiuAregjeY/oq01cYjtBjAjV5Gmeubt78GsqOdWL6Kh3aY2Dg3WOF/abUm4ABuHPokGZBnxi3arWJpQ/AV+hX60w8CUQglAewR17SZm+ojQF0ZKUPJNEvyZbJlgTY02o94r76pljWO5Q3WhXVYRrtbVbEL23PxEh5kz7BOuxeZVEfw76Ee5rVHxIuSdDhuyKvNDaruUjn0iIXlJu4M63dSqhB+C/YTjHxvPUZkyj4f4FOVaZLDlCjQwbQyteDrTgGv9cEatZHz4+8RGOw3K52jNVEYRhjrTPlo7ukRc57u53v7nk4NTLZjC726GxVCuSELLrYzWfvckxv8PGaBKcWJGjeOJ1QilXdDlYe40BIb/UtUutOCDbSnCNr7hZnGQ1TgghN790vNV3o0RHZ7pACdc68b5uVhG6s7tIrsPeUiuWER+60JwvSo9ed0CAwEAAQ==";
+                                String meraAchaWaalapublicKey="MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAsqa0/WueaY2OGmIge41CWNPc6UnjF8N0WR/p7xn9BeXNtfstyJL/sJB3XLQvLi9ijWrUSv8cMbfRVStAYneGEFAY1821+owU/5LC7P241lGF54yr2h8pAHao7pmFrDzQ6QjXmE8wcEDw77nB+osLPXQv3+hcLm4y1ZOQCNxsPaHYdtM6hzJT89R1hVYmOMTeamwlQ0Ee+ZWqZ2EDtZDFkL8anZ0WCo8td9d+w4YKH2nOtXiPGjiuAregjeY/oq01cYjtBjAjV5Gmeubt78GsqOdWL6Kh3aY2Dg3WOF/abUm4ABuHPokGZBnxi3arWJpQ/AV+hX60w8CUQglAewR17SZm+ojQF0ZKUPJNEvyZbJlgTY02o94r76pljWO5Q3WhXVYRrtbVbEL23PxEh5kz7BOuxeZVEfw76Ee5rVHxIuSdDhuyKvNDaruUjn0iIXlJu4M63dSqhB+C/YTjHxvPUZkyj4f4FOVaZLDlCjQwbQyteDrTgGv9cEatZHz4+8RGOw3K52jNVEYRhjrTPlo7ukRc57u53v7nk4NTLZjC726GxVCuSELLrYzWfvckxv8PGaBKcWJGjeOJ1QilXdDlYe40BIb/UtUutOCDbSnCNr7hZnGQ1TgghN790vNV3o0RHZ7pACdc68b5uVhG6s7tIrsPeUiuWER+60JwvSo9ed0CAwEAAQ==";
+                                //String publicKey="MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAsIwVStQi6aSMLBZu3vhafOR5NTMNp+TXPwyk/6VoaSQfDnZaSQPYhdt4a8X215KwXwpIL1eBJOH2NW8jp5AO4WauHWEwEggJvPaC8FgzZtDhjYexOk+/yaDbY7U9BofJSU76VIBxRoN7YmAknAKrpfn0ukXPPuUx5Ny/cy85nunqo5M8Acf2VVwSGZQMBZFSm3yxYOdS4laDlM+s1w+5wLDMjYSgIMm76rpVdO3hs2n2dSAYM6XMOaqNDwHdZk6n8lPgivYVXjTz7KU9eqkFnecWvn2ugRI7hgrplZxS020k0QBeYd0AH7zJZKS3Xo5VycL01UO/WYOQvB7v8lge7TiQZ3CCrnuykqcJ/r5DMLO/cKQAeZi+LQ95FQg39joO8G7bfO7+a3Gs8Re3mRW7AA8x1aEn7XZMOUu4l4IfNvwh20V4cz3xvGXdr9ZLFvgX5593MxCDBjkiaynzG8gmLVTIoaItPy+khwO/vjfWka0L3yvT3l55R4H/KRKxlHaY58HVdLbuWrUoH/4gbkYFYFC+rejBW5wbE0FJmWIkEXLKsTlXcsn6eAzi4BRxidQ/4rIEf8qWpSFzJobivBnWe4bpBA19g3N47PDpD5xS6uj7ODSBhEn22UnsiDaGV+RhsXYA/xqaJCjB6+W7CN00Lowr87sUoT4VAK8wrOk4D5sCAwEAAQ==";
+				String publicKey="MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAreGJCnW0btr2hqYZQTfeCKERRGNIkcCkFqSodzQHw9DXHe5ymHFLmnHBGgan7A4CHUET0kCKbZH9ZoKt1I+fLO2eIReuRWwYDQ1p4aGocTiDPZj+glhC3c72Gr7ZddYEhi7SfTA3vAZuaHEAFOb1cOBDJmD5B7t2klLst57bpZQeOMBcAaYVxxnusP+LesfeZ2LZQOotne3VOINtPQtXtNeT+Qc+4bulJz+YyJcM1w5A2fliQ64FIJAAcJ2B5Jyd63Q3eiyvB7T9R5RKvjuORFaXa/jEsRYnf7/ySOVMXnroz9Bwqhj5S0T18ko0x58GYtTjHWi6hp6HaZL95a/MPvG7SWmX4zuvvMQmY57iVb4s/RWykHzIhsrqzzTEXxGgRJ34ZgzRgUkA4CfW42ShYFBSSBLiM+xBqjuj5o2XLMdJYonvPeJSLXnD1x0FlrG0HW7Vq8KaBNSCRNu/Mf0mfx5WBNqS7at3XVwupmed3iW4YB1Ot9K7Ag9IEExACwD35jze1N7DS8Ll4eD6dXdwshIc1DKEFRxa8WS5j53f3E4v3Cdt3ntGLdEvbp+u2rPxuidSNTxfCUeKpJtU9SWHXFGjBQjKA6Tp3rd5pvLj0AYvR2gtLIvJ7dwvU0X2P/rYYa5jcy9oXkX3NiSSj93NHGdcEDdoVRfMm6t6GmlxpQECAwEAAQ==";
+
+                                System.out.println(request.attributes());
+                                System.out.println(request.body());
+                                //String bodyToEncrypt = request.attribute("contentToEncrypt");
+                                //return "okn";
+                                String bodyToEncrypt = request.body();
+
+                        try {
+                                App encdo=new App();
+                                byte[] EncryptedKey;
+                                byte[] EncryptedData;
+                                byte[] plaintextKey = encdo.generateSecretKey(16, "AES").getEncoded();
+                                System.out.println("at the top");
+                                byte[] iv = encdo.generateIv("AES");
+                                System.out.println("after iv generation");
+                                byte[] encodedEncryptedKey=null;
+                                byte[] encodedEncryptedData=null;
+                                System.out.println("before asymmetric");
+                                EncryptedKey = encdo.asymmetricencrypt(plaintextKey, publicKey.getBytes());
+                                encodedEncryptedKey = Base64.getEncoder().encode(EncryptedKey);
+                                System.out.println("before symmtric encrypt->>>>");
+
+                                EncryptedData=encdo.symmetricencrypt(bodyToEncrypt.getBytes(), iv, plaintextKey);
+                                encodedEncryptedData= Base64.getEncoder().encode(enc.mergeTwoByteArrays(iv, EncryptedData));
+
+                                System.out.println("raw data to encrypt:"+bodyToEncrypt);
+                                System.out.println("Encrypted Key :"+new String(encodedEncryptedKey));
+                                System.out.println("Encrypted Content :"+new String(encodedEncryptedData));
+
+                                JSONObject nJSONObj = new JSONObject();
+                                nJSONObj.put("encryptedkey",new String(encodedEncryptedKey));
+                                nJSONObj.put("encryptedcontent",new String(encodedEncryptedData));
+                                response.type("application/json");
+                                response.body(nJSONObj.toString());
+                                return nJSONObj.toString();
+                        } catch (GeneralSecurityException e){
+                                e.printStackTrace();
+                                return "Something went wrong";
+                        }
+                });
 		
 		post("/encrypt", (request, response) -> {
    			 // Create something
@@ -257,8 +309,10 @@ public class App {
 				//String publicKey="MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAqcsOb7b8zjUwcCAfPaCOrTZjjZbmJWnPyBrDiCYM/zR1G7zjU0GrExHBTQEC4BpJY1d2TaNpXfGJep44wKndURXzS23DQ6uQM1kahxLyH23XJ2v8EQs9SlFUvhsmY46AwaL6AGRTaP4zOllOg2wOIg1uymkpE4HM7ev9LzaOfwaYg5bhTS1FB7ZTOg+JfWRcPwPcaBO45rObGkwqGDM/91YKa+pZqYO4HJHx5hxH3nEsE9Det/fsBhABnX8cwK98hHOsghPV4wSEYkxWnwSTt9knjui0LI5fGBmu5mLEDWI/l7dvpM7cquPzOfyORJ961lSoT+rOKO2wddLmTztgxxKOPTh5wq9jFatJcHKN+NcRij2lcGfaCH2V+iYe3GtMt4U1wAWawObF35mMGsWMc/+KNSWHomI6kr2HCpzbe3O6XKWCyogQv+kRDcVYKDap2ECWY/5mJHJrzTxZh75wBrZp0QPoZtOsHtHTFDtGUCYUqj+rHzOaA3majACMtvdWFlux6aIprYvHWxg/qTBUMY80uXLsT5fyYx3z0S1MfzEn9ul7tYYYH4eP/ZbHrjQI7h36kEvyok+gZ6bqqDKV5MfStBT3H63fE3R4bhhoobshLRH4/txtrjEmBOMRJg8eQUAk1wOseSOiEMjVDfiKK5Gw0ziXwdrY8YW0M64CEx0CAwEAAQ==";
 			 	//String publicKey="MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAsIwVStQi6aSMLBZu3vhafOR5NTMNp+TXPwyk/6VoaSQfDnZaSQPYhdt4a8X215KwXwpIL1eBJOH2NW8jp5AO4WauHWEwEggJvPaC8FgzZtDhjYexOk+/yaDbY7U9BofJSU76VIBxRoN7YmAknAKrpfn0ukXPPuUx5Ny/cy85nunqo5M8Acf2VVwSGZQMBZFSm3yxYOdS4laDlM+s1w+5wLDMjYSgIMm76rpVdO3hs2n2dSAYM6XMOaqNDwHdZk6n8lPgivYVXjTz7KU9eqkFnecWvn2ugRI7hgrplZxS020k0QBeYd0AH7zJZKS3Xo5VycL01UO/WYOQvB7v8lge7TiQZ3CCrnuykqcJ/r5DMLO/cKQAeZi+LQ95FQg39joO8G7bfO7+a3Gs8Re3mRW7AA8x1aEn7XZMOUu4l4IfNvwh20V4cz3xvGXdr9ZLFvgX5593MxCDBjkiaynzG8gmLVTIoaItPy+khwO/vjfWka0L3yvT3l55R4H/KRKxlHaY58HVdLbuWrUoH/4gbkYFYFC+rejBW5wbE0FJmWIkEXLKsTlXcsn6eAzi4BRxidQ/4rIEf8qWpSFzJobivBnWe4bpBA19g3N47PDpD5xS6uj7ODSBhEn22UnsiDaGV+RhsXYA/xqaJCjB6+W7CN00Lowr87sUoT4VAK8wrOk4D5sCAwEAAQ==";
 
-				String domain = "UAT";
-				String publicKey = dotenv.get(domain + "_PUB_KEY");
+				//String publicKey="MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAsqa0/WueaY2OGmIge41CWNPc6UnjF8N0WR/p7xn9BeXNtfstyJL/sJB3XLQvLi9ijWrUSv8cMbfRVStAYneGEFAY1821+owU/5LC7P241lGF54yr2h8pAHao7pmFrDzQ6QjXmE8wcEDw77nB+osLPXQv3+hcLm4y1ZOQCNxsPaHYdtM6hzJT89R1hVYmOMTeamwlQ0Ee+ZWqZ2EDtZDFkL8anZ0WCo8td9d+w4YKH2nOtXiPGjiuAregjeY/oq01cYjtBjAjV5Gmeubt78GsqOdWL6Kh3aY2Dg3WOF/abUm4ABuHPokGZBnxi3arWJpQ/AV+hX60w8CUQglAewR17SZm+ojQF0ZKUPJNEvyZbJlgTY02o94r76pljWO5Q3WhXVYRrtbVbEL23PxEh5kz7BOuxeZVEfw76Ee5rVHxIuSdDhuyKvNDaruUjn0iIXlJu4M63dSqhB+C/YTjHxvPUZkyj4f4FOVaZLDlCjQwbQyteDrTgGv9cEatZHz4+8RGOw3K52jNVEYRhjrTPlo7ukRc57u53v7nk4NTLZjC726GxVCuSELLrYzWfvckxv8PGaBKcWJGjeOJ1QilXdDlYe40BIb/UtUutOCDbSnCNr7hZnGQ1TgghN790vNV3o0RHZ7pACdc68b5uVhG6s7tIrsPeUiuWER+60JwvSo9ed0CAwEAAQ==";
+				//String publicKey="MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAsqa0/WueaY2OGmIge41CWNPc6UnjF8N0WR/p7xn9BeXNtfstyJL/sJB3XLQvLi9ijWrUSv8cMbfRVStAYneGEFAY1821+owU/5LC7P241lGF54yr2h8pAHao7pmFrDzQ6QjXmE8wcEDw77nB+osLPXQv3+hcLm4y1ZOQCNxsPaHYdtM6hzJT89R1hVYmOMTeamwlQ0Ee+ZWqZ2EDtZDFkL8anZ0WCo8td9d+w4YKH2nOtXiPGjiuAregjeY/oq01cYjtBjAjV5Gmeubt78GsqOdWL6Kh3aY2Dg3WOF/abUm4ABuHPokGZBnxi3arWJpQ/AV+hX60w8CUQglAewR17SZm+ojQF0ZKUPJNEvyZbJlgTY02o94r76pljWO5Q3WhXVYRrtbVbEL23PxEh5kz7BOuxeZVEfw76Ee5rVHxIuSdDhuyKvNDaruUjn0iIXlJu4M63dSqhB+C/YTjHxvPUZkyj4f4FOVaZLDlCjQwbQyteDrTgGv9cEatZHz4+8RGOw3K52jNVEYRhjrTPlo7ukRc57u53v7nk4NTLZjC726GxVCuSELLrYzWfvckxv8PGaBKcWJGjeOJ1QilXdDlYe40BIb/UtUutOCDbSnCNr7hZnGQ1TgghN790vNV3o0RHZ7pACdc68b5uVhG6s7tIrsPeUiuWER+60JwvSo9ed0CAwEAAQ==";
+				String publicKey="MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAsIwVStQi6aSMLBZu3vhafOR5NTMNp+TXPwyk/6VoaSQfDnZaSQPYhdt4a8X215KwXwpIL1eBJOH2NW8jp5AO4WauHWEwEggJvPaC8FgzZtDhjYexOk+/yaDbY7U9BofJSU76VIBxRoN7YmAknAKrpfn0ukXPPuUx5Ny/cy85nunqo5M8Acf2VVwSGZQMBZFSm3yxYOdS4laDlM+s1w+5wLDMjYSgIMm76rpVdO3hs2n2dSAYM6XMOaqNDwHdZk6n8lPgivYVXjTz7KU9eqkFnecWvn2ugRI7hgrplZxS020k0QBeYd0AH7zJZKS3Xo5VycL01UO/WYOQvB7v8lge7TiQZ3CCrnuykqcJ/r5DMLO/cKQAeZi+LQ95FQg39joO8G7bfO7+a3Gs8Re3mRW7AA8x1aEn7XZMOUu4l4IfNvwh20V4cz3xvGXdr9ZLFvgX5593MxCDBjkiaynzG8gmLVTIoaItPy+khwO/vjfWka0L3yvT3l55R4H/KRKxlHaY58HVdLbuWrUoH/4gbkYFYFC+rejBW5wbE0FJmWIkEXLKsTlXcsn6eAzi4BRxidQ/4rIEf8qWpSFzJobivBnWe4bpBA19g3N47PDpD5xS6uj7ODSBhEn22UnsiDaGV+RhsXYA/xqaJCjB6+W7CN00Lowr87sUoT4VAK8wrOk4D5sCAwEAAQ==";
+
 				System.out.println(request.attributes());
 				System.out.println(request.body());
 			 	//String bodyToEncrypt = request.attribute("contentToEncrypt");
@@ -269,13 +323,16 @@ public class App {
 				App encdo=new App();
 				byte[] EncryptedKey;
 				byte[] EncryptedData;
-				byte[] plaintextKey = enc.generateSecretKey(16, "AES").getEncoded();
-				byte[] iv = enc.generateIv("AES");
+				byte[] plaintextKey = encdo.generateSecretKey(16, "AES").getEncoded();
+				System.out.println("at the top");
+				byte[] iv = encdo.generateIv("AES");
+				System.out.println("after iv generation");
 				byte[] encodedEncryptedKey=null;
 				byte[] encodedEncryptedData=null;
-
+				System.out.println("before asymmetric");
 				EncryptedKey = encdo.asymmetricencrypt(plaintextKey, publicKey.getBytes());
 				encodedEncryptedKey = Base64.getEncoder().encode(EncryptedKey);
+				System.out.println("before symmtric encrypt->>>>");
 
 				EncryptedData=encdo.symmetricencrypt(bodyToEncrypt.getBytes(), iv, plaintextKey);
 				encodedEncryptedData= Base64.getEncoder().encode(enc.mergeTwoByteArrays(iv, EncryptedData));
@@ -383,3 +440,4 @@ post("/canaraencrypt", (request, response) -> {
 	}
 
 }
+
