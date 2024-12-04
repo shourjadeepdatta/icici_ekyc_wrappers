@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>e-Aadhaar Card</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+  }
+  .aadhaar-card {
+    width: 768px;
+    border: 1px solid #000;
+    margin: 20px auto;
+    background-color: #fff;
+    padding: 10px;
+  }
+  .header {
+    text-align: center;
+    border-bottom: 2px solid #000;
+    padding-bottom: 5px;
+  }
+  .main-content {
+    display: flex;
+    border-bottom: 2px solid #000;
+    padding: 10px;
+  }
+  .left-section {
+    width: 70%;
+  }
+  .right-section {
+    width: 30%;
+    text-align: center;
+  }
+  .profile-picture {
+    border: 1px solid #000;
+    display: inline-block;
+    padding: 5px;
+  }
+  .info-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .info-table td, .info-table th {
+    border: 1px solid #000;
+    padding: 5px;
+  }
+  .footer {
+    text-align: center;
+    margin-top: 5px;
+  }
+</style>
+</head>
+<body>
+
+<div class="aadhaar-card">
+  <div class="header">
+    <h1>DigiLocker verified e-Aadhaar</h1>
+    <p>This document is generated from verified Aadhaar XML obtained from DigiLocker with due user consent and authentication</p>
+    e-Aadhaar generated from DigiLocker verified Aadhaar XML
+  </div>
+  <div class="main-content">
+    <div class="left-section">
+      <table class="info-table">
+        <tr>
+          <th>Generation date</th>
+          <td>{generation_date}</td>
+          <th>Download date</th>
+          <td>{download_date}</td>
+        </tr>
+        <tr>
+          <th>Masked Aadhaar number</th>
+          <td>{masked_aadhaar_number}</td>
+          <th>Name</th>
+          <td>{name}</td>
+        </tr>
+        <tr>
+          <th>Date of Birth</th>
+          <td>{dob}</td>
+          <th>Gender</th>
+          <td>{gender}</td>
+        </tr>
+        <tr>
+          <th>c/o, s/o</th>
+          <td>{co}</td>
+          <th>Address</th>
+          <td>{address}</td>
+        </tr>
+        <tr>
+          <th>Landmark</th>
+          <td>{landmark}</td>
+          <th>Locality</th>
+          <td>{locality}</td>
+        </tr>
+        <tr>
+          <th>City / District</th>
+          <td>{city}</td>
+          <th>Pin Code</th>
+          <td>{pincode}</td>
+        </tr>
+        <tr>
+          <th>State</th>
+          <td colspan="3">{state}</td>
+        </tr>
+      </table>
+    </div>
+    <div class="right-section">
+            <img src="data:image/jpeg;base64,{photo}" alt="" class="profile-picture">
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>XML verified</p>
+  </div>
+</div>
+
+</body>
+</html>
