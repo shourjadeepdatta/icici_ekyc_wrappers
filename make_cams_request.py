@@ -409,9 +409,9 @@ def donit(user_id):
     for i, image in enumerate(images):
         image.save('{}.jpg'.format(user_id), 'JPEG')
 
-    l = open("{}.jpg".format(user_id),"rb")
-    i = l.read()
-    l.close()
+        l = open("{}.jpg".format(user_id),"rb")
+        i = l.read()
+        l.close()
 
 #print(i)
 
@@ -420,8 +420,10 @@ def donit(user_id):
 #print(digib64)
 
     #data = json.loads(data)
+    with open("pdf_image.txt","w") as f:
+        f.write(digib64.decode("utf-8"))
 
-    data["digib"] = digib64
+    data["digib"] = digib64.decode("utf-8")
     
     o = open("{}_aadhaar_raw_xml.txt".format(user_id))
     #my_dict = eval(o.read())
@@ -510,7 +512,7 @@ def donit(user_id):
         else:
             print("No session was found for",user_id)
 
-get_password()
+#get_password()
 #donit("ICICI_729757999")
 #donit("ICICI_73480635")
 #donit("ICICI_573996840")
