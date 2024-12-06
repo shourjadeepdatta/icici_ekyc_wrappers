@@ -17,7 +17,7 @@ import logging
 import xml.etree.ElementTree as ET
 from app.helpers import dict_to_xml
 import xmltodict
-from app.helpers import CAMSEncryptionCKYC, CAMSDecryptionCKYC,encrypt_kra_push_payload,decrypt_kra_push_response,json_to_urlencoded
+from app.helpers import CAMSEncryptionCKYC, CAMSDecryptionCKYC,encrypt_kra_push_payload,decrypt_kra_push_response,json_to_urlencoded,test_encrypt_kra_push_payload
 import uuid
 import pytz
 
@@ -69,12 +69,12 @@ def kra_push():
     #del flat_payload['fatca']
     #encoded_string = "APP_USER_ID=CAMSEKYC&APP_PASSWORD=7RJZPK8YXdFrzRj3a4FQAQ%3d%3d&APP_OTHER_KRA=CAMSEKYC&APP_PASSKEY=cams&APP_PAN=AAAPB6666A&APP_FATCA_TAX_JURISDICTION=Y&APP_FATCA_COUNTRYOF_JURISDICTION=IN&APP_FATCA_PLACE_BIRTH=CHENNAI&APP_FATCA_COUNTRY_BIRTH=IN&APP_INCOME=03&APP_OCCUPATION=01&APP_NETWRTH=123456789&APP_NETWORTH_DT=11-Aug-2024&APP_FATCA_DATE_DECLARATION=11-Aug-2024&APP_FATCA_COUNTRY_RESIDENCY_1=AL&APP_FATCA_TAX_IDENTIFICATION_NO_1=&APP_FATCA_TAX_EXEMPT_FLAG_1=Y&APP_FATCA_TAX_EXEMPT_REASON_1=03&APP_FATCA_COUNTRY_RESIDENCY_2=AF&APP_FATCA_TAX_IDENTIFICATION_NO_2=&APP_FATCA_TAX_EXEMPT_FLAG_2=Y&APP_FATCA_TAX_EXEMPT_REASON_2=05&APP_FATCA_COUNTRY_RESIDENCY_3=098&APP_REQ_TYPE=1&APP_FATCA_TAX_IDENTIFICATION_NO_3=&APP_FATCA_TAX_EXEMPT_FLAG_3=Y&APP_FATCA_TAX_EXEMPT_REASON_3=01&APP_FATCA_COUNTRY_RESIDENCY_4=AI&APP_FATCA_TAX_IDENTIFICATION_NO_4=&APP_FATCA_TAX_EXEMPT_FLAG_4=Y&APP_FATCA_TAX_EXEMPT_REASON_4=01&APP_POS_CODE=&APP_AMC=&APP_POL_CONN=NA"
     #encoded_string = urlencode(flat_payload)
-    encoded_string = encoded_string + "&APP_PASSWORD=wjpPWZSYUghHX09AaF55uw=="
-    encoded_string = encoded_string.replace("%3D%3D","==")
+    #encoded_string = encoded_string + "&APP_PASSWORD=wjpPWZSYUghHX09AaF55uw=="
+    #encoded_string = encoded_string.replace("%3D","=")
     logger.debug("plain text payload is->>>>"+encoded_string)
     #url = "https://eiscuat1.camsonline.com/KRA_MODIFY_API/test/EIPVDetail/KYC_MODIFY"
     url = "https://camskra.com/EIPVAPI_MOD/EIPVDetail/KYC_MODIFY"
-    encrypted_data = encrypt_kra_push_payload(encoded_string,"B30015F366611AD1C856FF4B193FD9EA")
+    encrypted_data = test_encrypt_kra_push_payload(encoded_string,"B30015F366611AD1C856FF4B193FD9EA")
     #logger.debug("encrypted_data->>"+encrypted_data)
     with open("encrypted_payload","w") as f:
         f.write(encrypted_data)

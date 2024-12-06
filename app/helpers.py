@@ -179,6 +179,37 @@ def CAMSDecryptionCKYC(encrypted_data):
         print(error)
         return None
 
+def test_encrypt_kra_push_payload(str_plain_text, str_key):
+    try:
+        # Initialize UTF-8 encoding
+        password_bytes = str_key.encode('utf-8')
+
+        # Base64 decode the IV
+        iv = base64.b64decode('NmZiYmEzOWFhZjFmZTNhZg==')
+
+        # Validate key length (32 bytes for AES-256)
+        if len(password_bytes) != 32:
+            raise ValueError("Key must be 32 bytes long for AES-256 encryption.")
+
+        # Create AES Cipher object with CBC mode
+        cipher = Cipher(algorithms.AES(password_bytes), modes.CBC(iv), backend=default_backend())
+        encryptor = cipher.encryptor()
+
+        # Apply PKCS7 padding to the plaintext
+        padder = PKCS7(algorithms.AES.block_size).padder()
+        padded_data = padder.update(str_plain_text.encode('utf-8')) + padder.finalize()
+
+        # Encrypt the data
+        encrypted_data = encryptor.update(padded_data) + encryptor.finalize()
+
+        # Concatenate IV with the encrypted data and encode as Base64
+        result = base64.b64encode(iv + encrypted_data).decode('utf-8')
+
+        return result
+
+    except Exception as ex:
+        raise ex
+
 def encrypt_kra_push_payload(str_plain_text,str_key):
     try:
         # Initialize UTF-8 encoding
