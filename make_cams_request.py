@@ -169,7 +169,7 @@ def get_password():
 
 	pass
 
-def call_cams_kyc_creation_request(request_data):
+def call_cams_kyc_creation_request(request_data,user_id):
 	data = convert_bytes_to_base64(request_data)
 	key = "ACB5DEBA6E3D86CA8A30BC7C9187FCBA"
 	iv = "NmZiYmEzOWFhZjFmZTNhZg=="
@@ -180,13 +180,15 @@ def call_cams_kyc_creation_request(request_data):
 	}
 	payload = encrypt_payload(json.dumps(data),key,iv)
 	pay = {"payload":data}
-	with open("reqq","w") as reqq:
+	with open("{}_reqq.txt".format(user_id),"w") as reqq:
 		reqq.write(str(data))
 	#print("reqbody: {}".format(payload))
 	try:
 		response = requests.request("POST", kyc_mod_url, headers=headers, data=json.dumps(pay))
 		print(response.status_code)
 		print(response.text)
+		with open("{}_respp.txt".format(user_id),"w") as respp:
+			respp.write(str(response.text))
 	except Exception as e:
 		print("problem while hitting the push api->>",str(e))
 
@@ -457,7 +459,7 @@ def donit(user_id):
 
 #    cr.write(str(json.dumps(reqb)))
 
-    if call_cams_kyc_creation_request(reqb) == 1:
+    if call_cams_kyc_creation_request(reqb,user_id) == 1:
         session_table = dynamo.Table("kwikid_vkyc_session_status")
         response = session_table.query(
 			IndexName="user_id-index",  # Secondary index name
