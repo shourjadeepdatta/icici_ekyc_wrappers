@@ -162,6 +162,7 @@ def make_camspdf(user_details,mobile,signature_base64):
                     "pan":user_details["poi"]["pan"],
                     "mobile":user_details["poi"]["mobile"],
                     "email":user_details["poi"]["email_id"],
+                    "app_name":user_details["poi"]["name"],
                     "fatca":user_details.get("fatca"),
                     "fatca_flag":user_details.get("APP_FATCA_APPLICABLE_FLAG"),
                     "state":poa["@state"],

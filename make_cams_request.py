@@ -181,14 +181,14 @@ def call_cams_kyc_creation_request(request_data,user_id):
 	payload = encrypt_payload(json.dumps(data),key,iv)
 	pay = {"payload":data}
 	with open("{}_reqq.txt".format(user_id),"w") as reqq:
-		reqq.write(str(data))
+		reqq.write(json.dumps(data))
 	#print("reqbody: {}".format(payload))
 	try:
 		response = requests.request("POST", kyc_mod_url, headers=headers, data=json.dumps(pay))
 		print(response.status_code)
 		print(response.text)
 		with open("{}_respp.txt".format(user_id),"w") as respp:
-			respp.write(str(response.text))
+			respp.write(response.text)
 	except Exception as e:
 		print("problem while hitting the push api->>",str(e))
 
@@ -229,11 +229,12 @@ def generate_request_body_from_data(request_raw_data,aadhaar_photo_b64,signature
 		#"APP_AMC":"IBL",
                 "APP_AMC":"P",#
 		"APP_APPLICANT_CITIZENSHIP": "01",
-		"APP_OCCUPATION": "99", # implies others
+		"APP_OCCUPATION": request_raw_data.get("modification_data",{}).get("APP_OCC","99"), # implies others
 		"APP_APPLICANT_KYC_ACC_TYPE": "01",
 		"APP_EKYC_TYPE": "I",
-		"APP_PER_COUNTRY": country_mapper.get(request_raw_data.get("APP_PER_COUNTRY","IN"),"India"),
-		"APP_KYC_EMP_NAME": "Abhishek Joshi",
+		#"APP_PER_COUNTRY": country_mapper.get(request_raw_data.get("APP_PER_COUNTRY","IN"),"India"),
+                "APP_PER_COUNTRY":"101",
+		"APP_KYC_EMP_NAME": request_raw_data.get("app_name","abctest123"),
 	    "APP_KYC_EMP_CODE": "00028",
 	    "APP_KYC_EMP_BRANCH": "PWI",
 	    "APP_KYC_EMP_DESIGNATION": "Head of OPS",
@@ -250,7 +251,8 @@ def generate_request_body_from_data(request_raw_data,aadhaar_photo_b64,signature
     	"APP_PER_ADDR_PROOF": "31",# 
     	"APP_COMM_ADDR_TYPE": "02",# implies residential
     	"APP_COMM_MOBILE_NO_CODE": "91",
-    	"APP_COMM_COUNTRY": country_mapper.get(request_raw_data.get("APP_COMM_COUNTRY","IN"),"India"),
+    	#"APP_COMM_COUNTRY": country_mapper.get(request_raw_data.get("APP_COMM_COUNTRY","IN"),"India"),
+        "APP_COMM_COUNTRY":"101",
     	"APP_ID_PROOF": "01",
     	"APP_FATHER_TITLE": "Mr",
     	"APP_APPLICANT_STATUS": "R",
@@ -259,25 +261,25 @@ def generate_request_body_from_data(request_raw_data,aadhaar_photo_b64,signature
         "APP_FATCA_APPLICABLE_FLAG":"Y",
         "fatca":{
             "APP_FATCA_BIRTH_PLACE":"Mumbai",
-            "APP_FATCA_BIRTH_COUNTRY":"IN",
-            "APP_FATCA_COUNTRY_CITYZENSHIP":"IN",
+            "APP_FATCA_BIRTH_COUNTRY":"101",
+            "APP_FATCA_COUNTRY_CITYZENSHIP":"101",
             "APP_FATCA_DATE_DECLARATION":"26/07/2024",
             "APP_POL_CONN":"PEP",
             "GROSS_ANNUAL_INCOME":"500000",
             "APP_NETWRTH":"500000",
-            "APP_FATCA_COUNTRY_RESIDENCY_1":"India",
+            "APP_FATCA_COUNTRY_RESIDENCY_1":"101",
             "APP_FATCA_TAX_IDENTIFICATION_NO_1":"GEXPD8653H",
             "APP_FATCA_TAX_EXEMPT_FLAG_1":"Y",
             "APP_FATCA_TAX_EXEMPT_REASON_1":"some reason",
-            "APP_FATCA_COUNTRY_RESIDENCY_2":"IN",
+            "APP_FATCA_COUNTRY_RESIDENCY_2":"101",
             "APP_FATCA_TAX_IDENTIFICATION_NO_2":"GEXPD8653H",
             "APP_FATCA_TAX_EXEMPT_FLAG_2":"Y",
             "APP_FATCA_TAX_EXEMPT_REASON_2":"some reason",
-            "APP_FATCA_COUNTRY_RESIDENCY_3":"India",
+            "APP_FATCA_COUNTRY_RESIDENCY_3":"101",
             "APP_FATCA_TAX_IDENTIFICATION_NO_3":"GEXPD8653H",
             "APP_FATCA_TAX_EXEMPT_FLAG_3":"Y",
             "APP_FATCA_TAX_EXEMPT_REASON_3":"some reason",
-            "APP_FATCA_COUNTRY_RESIDENCY_4":"India",
+            "APP_FATCA_COUNTRY_RESIDENCY_4":"101",
             "APP_FATCA_TAX_IDENTIFICATION_NO_4":"GEXPD8653H",
             "APP_FATCA_TAX_EXEMPT_FLAG_4":"Y",
             "APP_FATCA_TAX_EXEMPT_REASON_4":"some reason"
@@ -286,27 +288,27 @@ def generate_request_body_from_data(request_raw_data,aadhaar_photo_b64,signature
         }
 	if request_raw_data.get('APP_FATCA_APPLICABLE_FLAG') not in ["N",None]:
 		data["fatca"] = {
-			"APP_FATCA_PLACE_BIRTH": country_mapper.get(request_raw_data.get("fatca",{}).get("APP_FATCA_PLACE_BIRTH"),"India"),
-			"APP_FATCA_COUNTRY_BIRTH": country_mapper.get(request_raw_data.get("fatca",{}).get("APP_FATCA_COUNTRY_BIRTH"),"India"),
-			"APP_FATCA_COUNTRY_CITYZENSHIP": request_raw_data.get("fatca",{}).get("APP_FATCA_COUNTRY_CITYZENSHIP"),
+			"APP_FATCA_PLACE_BIRTH": country_mapper.get(request_raw_data.get("fatca",{}).get("APP_FATCA_PLACE_BIRTH")),
+			"APP_FATCA_COUNTRY_BIRTH": country_mapper.get(request_raw_data.get("fatca",{}).get("APP_FATCA_COUNTRY_BIRTH"),"IN"),
+			"APP_FATCA_COUNTRY_CITYZENSHIP": request_raw_data.get("fatca",{}).get("APP_FATCA_COUNTRY_CITYZENSHIP","IN"),
 			"APP_FATCA_DATE_DECLARATION": request_raw_data.get("fatca",{}).get("APP_FATCA_DATE_DECLARATION"),
                         "APP_FATCA_TAX_JURISDICTION":request_raw_data.get("fatca",{}).get("APP_FATCA_TAX_JURISDICTION"),
 			"APP_POL_CONN": pol_mapper.get(request_raw_data.get("fatca",{}).get("APP_POL_CONN")),
 			"GROSS_ANNUAL_INCOME": request_raw_data.get("fatca",{}).get("GROSS_ANNUAL_INCOME"),
 			"APP_NETWRTH": request_raw_data.get("fatca",{}).get("APP_NETWRTH"),
-			"APP_FATCA_COUNTRY_RESIDENCY_1": request_raw_data.get("fatca",{}).get("APP_FATCA_COUNTRY_RESIDENCY_1"),
+			"APP_FATCA_COUNTRY_RESIDENCY_1": request_raw_data.get("fatca",{}).get("APP_FATCA_COUNTRY_RESIDENCY_1","IN"),
 			"APP_FATCA_TAX_IDENTIFICATION_NO_1": request_raw_data.get("fatca",{}).get("APP_FATCA_TAX_IDENTIFICATION_NO_1"),
 			"APP_FATCA_TAX_EXEMPT_FLAG_1": tin_mapper[request_raw_data.get("fatca",{}).get("APP_FATCA_TAX_EXEMPT_FLAG_1")],
 			"APP_FATCA_TAX_EXEMPT_REASON_1": request_raw_data.get("fatca",{}).get("APP_FATCA_TAX_EXEMPT_REASON_1"),
-			"APP_FATCA_COUNTRY_RESIDENCY_2": request_raw_data.get("fatca",{}).get("APP_FATCA_COUNTRY_RESIDENCY_2"),
+			"APP_FATCA_COUNTRY_RESIDENCY_2": request_raw_data.get("fatca",{}).get("APP_FATCA_COUNTRY_RESIDENCY_2","IN"),
 			"APP_FATCA_TAX_IDENTIFICATION_NO_2": tin_mapper.get(request_raw_data.get("fatca",{}).get("APP_FATCA_TAX_IDENTIFICATION_NO_2"),"00"),
 			"APP_FATCA_TAX_EXEMPT_FLAG_2": request_raw_data.get("fatca",{}).get("APP_FATCA_TAX_EXEMPT_FLAG_2"),
 			"APP_FATCA_TAX_EXEMPT_REASON_2": request_raw_data.get("fatca",{}).get("APP_FATCA_TAX_EXEMPT_REASON_2"),
-			"APP_FATCA_COUNTRY_RESIDENCY_3": request_raw_data.get("fatca",{}).get("APP_FATCA_COUNTRY_RESIDENCY_3"),
+			"APP_FATCA_COUNTRY_RESIDENCY_3": request_raw_data.get("fatca",{}).get("APP_FATCA_COUNTRY_RESIDENCY_3","IN"),
 			"APP_FATCA_TAX_IDENTIFICATION_NO_3": tin_mapper.get(request_raw_data.get("fatca",{}).get("APP_FATCA_TAX_IDENTIFICATION_NO_3"),"00"),
 			"APP_FATCA_TAX_EXEMPT_FLAG_3": request_raw_data.get("fatca",{}).get("APP_FATCA_TAX_EXEMPT_FLAG_3"),
 			"APP_FATCA_TAX_EXEMPT_REASON_3": request_raw_data.get("fatca",{}).get("APP_FATCA_TAX_EXEMPT_REASON_3"),
-			"APP_FATCA_COUNTRY_RESIDENCY_4": request_raw_data.get("fatca",{}).get("APP_FATCA_COUNTRY_RESIDENCY_4"),
+			"APP_FATCA_COUNTRY_RESIDENCY_4": request_raw_data.get("fatca",{}).get("APP_FATCA_COUNTRY_RESIDENCY_4","IN"),
 			"APP_FATCA_TAX_IDENTIFICATION_NO_4": tin_mapper.get(request_raw_data.get("fatca",{}).get("APP_FATCA_TAX_IDENTIFICATION_NO_4"),"00"),
 			"APP_FATCA_TAX_EXEMPT_FLAG_4": request_raw_data.get("fatca",{}).get("APP_FATCA_TAX_EXEMPT_FLAG_4"),
 			"APP_FATCA_TAX_EXEMPT_REASON_4": request_raw_data.get("fatca",{}).get("APP_FATCA_TAX_EXEMPT_REASON_4")
