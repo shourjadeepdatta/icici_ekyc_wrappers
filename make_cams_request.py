@@ -211,7 +211,11 @@ def generate_request_body_from_data(request_raw_data,aadhaar_photo_b64,signature
 
 	kyc_date = datetime.now().strftime('%d-%b-%Y')
 	dob_date = datetime.strptime(request_raw_data["dob"], "%d-%m-%Y").strftime("%d-%b-%Y")
-
+	app_occ = request_raw_data.get("modification_data",{}).get("APP_OCC","")
+	if app_occ  == "99":
+		app_occupation = ""
+	else:
+		app_occupation = app_occ
 	data = {
 		"APP_UPLOAD_TYPE":"03",
 		#"APP_USER_ID":"THINKEKYC",
@@ -229,7 +233,7 @@ def generate_request_body_from_data(request_raw_data,aadhaar_photo_b64,signature
 		#"APP_AMC":"IBL",
                 "APP_AMC":"P",#
 		"APP_APPLICANT_CITIZENSHIP": "01",
-		"APP_OCCUPATION": request_raw_data.get("modification_data",{}).get("APP_OCC","99"), # implies others
+		"APP_OCCUPATION": app_occupation, # implies others
 		"APP_APPLICANT_KYC_ACC_TYPE": "01",
 		"APP_EKYC_TYPE": "I",
 		#"APP_PER_COUNTRY": country_mapper.get(request_raw_data.get("APP_PER_COUNTRY","IN"),"India"),
@@ -266,7 +270,7 @@ def generate_request_body_from_data(request_raw_data,aadhaar_photo_b64,signature
             "APP_FATCA_DATE_DECLARATION":"26/07/2024",
             "APP_POL_CONN":"PEP",
             "GROSS_ANNUAL_INCOME":"500000",
-            "APP_NETWRTH":"500000",
+            # "APP_NETWRTH":"500000",
             "APP_FATCA_COUNTRY_RESIDENCY_1":"101",
             "APP_FATCA_TAX_IDENTIFICATION_NO_1":"GEXPD8653H",
             "APP_FATCA_TAX_EXEMPT_FLAG_1":"Y",
@@ -295,7 +299,7 @@ def generate_request_body_from_data(request_raw_data,aadhaar_photo_b64,signature
                         "APP_FATCA_TAX_JURISDICTION":request_raw_data.get("fatca",{}).get("APP_FATCA_TAX_JURISDICTION"),
 			"APP_POL_CONN": pol_mapper.get(request_raw_data.get("fatca",{}).get("APP_POL_CONN")),
 			"GROSS_ANNUAL_INCOME": request_raw_data.get("fatca",{}).get("GROSS_ANNUAL_INCOME"),
-			"APP_NETWRTH": request_raw_data.get("fatca",{}).get("APP_NETWRTH"),
+			# "APP_NETWRTH": request_raw_data.get("fatca",{}).get("APP_NETWRTH"),
 			"APP_FATCA_COUNTRY_RESIDENCY_1": request_raw_data.get("fatca",{}).get("APP_FATCA_COUNTRY_RESIDENCY_1","IN"),
 			"APP_FATCA_TAX_IDENTIFICATION_NO_1": request_raw_data.get("fatca",{}).get("APP_FATCA_TAX_IDENTIFICATION_NO_1"),
 			"APP_FATCA_TAX_EXEMPT_FLAG_1": tin_mapper[request_raw_data.get("fatca",{}).get("APP_FATCA_TAX_EXEMPT_FLAG_1")],
