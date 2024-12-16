@@ -350,7 +350,7 @@ def generate_request_body_from_data(request_raw_data,aadhaar_photo_b64,signature
 	data["APP_IPV_EMP_NAME"] = request_raw_data.get("APP_IPV_EMP_NAME","ABC")
 	data["APP_IPV_EMP_CODE"] = request_raw_data.get("APP_IPV_EMP_CODE","123")
 	data["APP_IPV_EMP_DESIGNATION"] = request_raw_data.get("APP_IPV_EMP_DESIGNATION","Manager")
-	data["APP_REQ_TYPE"] = "2"
+	data["APP_REQ_TYPE"] = ""
 	data["APP_IPV_EMP_BRANCH"] = request_raw_data.get("APP_IPV_EMP_BRANCH","MUM")
 	data["APP_IPV_INSTITUTION_CODE"] = request_raw_data.get("APP_IPV_INSTITUTION_CODE","10")
 	data["APP_IPV_INSTITUTION_NAME"] = "ICICI Bank"
