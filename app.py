@@ -130,9 +130,37 @@ def make_camspdf(user_details,mobile,signature_base64):
     html_template = html_template.replace("{city}",poa["@vtc"])
     html_template = html_template.replace("{pincode}",poa["@pc"])
     html_template = html_template.replace("{gender}",poi["@gender"])
+
+    html_template = html_template.replace("{place_of_birth}",user_details.get("fatca",{}).get("APP_FATCA_BIRTH_PLACE",""))
+    html_template = html_template.replace("{country_of_birth}",user_details.get("fatca",{}).get("APP_FATCA_BIRTH_COUNTRY",""))
+    html_template = html_template.replace("{country_of_citizenship}",user_details.get("fatca",{}).get("APP_FATCA_COUNTRY_CITYZENSHIP","IN"))
+    html_template = html_template.replace("{date_of_declaration}",user_details.get("fatca",{}).get("APP_FATCA_DATE_DECLARATION",""))
+    html_template = html_template.replace("{political_connection}",user_details.get("fatca",{}).get("APP_POL_CONN",""))
+    html_template = html_template.replace("{gross_annual_income}",user_details.get("fatca",{}).get("GROSS_ANNUAL_INCOME",""))
+    html_template = html_template.replace("{net_worth}",user_details.get("fatca",{}).get("APP_NETWRTH",""))
+    html_template = html_template.replace("{country_of_residency_1}",user_details.get("fatca",{}).get("APP_FATCA_COUNTRY_RESIDENCY_1",""))
+    html_template = html_template.replace("{tax_no_1}",user_details.get("fatca",{}).get("APP_FATCA_TAX_IDENTIFICATION_NO_1",""))
+    html_template = html_template.replace("{tax_exempt_flag_1}",user_details.get("fatca",{}).get("APP_FATCA_TAX_EXEMPT_FLAG_1",""))
+    html_template = html_template.replace("{tax_exempt_1}",user_details.get("fatca",{}).get("APP_FATCA_TAX_EXEMPT_REASON_1",""))
+
+    html_template = html_template.replace("{country_of_residency_2}",user_details.get("fatca",{}).get("APP_FATCA_COUNTRY_RESIDENCY_2",""))
+    html_template = html_template.replace("{tax_no_2}",user_details.get("fatca",{}).get("APP_FATCA_TAX_IDENTIFICATION_NO_2",""))
+    html_template = html_template.replace("{tax_exempt_flag_2}",user_details.get("fatca",{}).get("APP_FATCA_TAX_EXEMPT_FLAG_2",""))
+    html_template = html_template.replace("{tax_exempt_2}",user_details.get("fatca",{}).get("APP_FATCA_TAX_EXEMPT_REASON_2",""))
+
+    html_template = html_template.replace("{country_of_residency_3}",user_details.get("fatca",{}).get("APP_FATCA_COUNTRY_RESIDENCY_3",""))
+    html_template = html_template.replace("{tax_no_3}",user_details.get("fatca",{}).get("APP_FATCA_TAX_IDENTIFICATION_NO_3",""))
+    html_template = html_template.replace("{tax_exempt_flag_3}",user_details.get("fatca",{}).get("APP_FATCA_TAX_EXEMPT_FLAG_3",""))
+    html_template = html_template.replace("{tax_exempt_3}",user_details.get("fatca",{}).get("APP_FATCA_TAX_EXEMPT_REASON_3",""))
+
+
+    html_template = html_template.replace("{country_of_residency_4}",user_details.get("fatca",{}).get("APP_FATCA_COUNTRY_RESIDENCY_4",""))
+    html_template = html_template.replace("{tax_no_4}",user_details.get("fatca",{}).get("APP_FATCA_TAX_IDENTIFICATION_NO_4",""))
+    html_template = html_template.replace("{tax_exempt_flag_4}",user_details.get("fatca",{}).get("APP_FATCA_TAX_EXEMPT_FLAG_4",""))
+    html_template = html_template.replace("{tax_exempt_4}",user_details.get("fatca",{}).get("APP_FATCA_TAX_EXEMPT_REASON_4",""))
    
     html_template = html_template.replace("{photo}",uiddata["Pht"])
-    html_template = html_template.replace("{signature_photo}",signature_base64)
+    #html_template = html_template.replace("{signature_photo}",signature_base64)
 
 
     field_order = ["co","house","street","loc","lm","po","pc","vtc","subdist","dist","state","country"]
