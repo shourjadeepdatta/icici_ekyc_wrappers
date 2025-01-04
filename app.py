@@ -132,12 +132,12 @@ def make_camspdf(user_details,mobile,signature_base64):
     html_template = html_template.replace("{gender}",poi["@gender"])
 
     html_template = html_template.replace("{place_of_birth}",user_details.get("fatca",{}).get("APP_FATCA_BIRTH_PLACE",""))
-    html_template = html_template.replace("{country_of_birth}",user_details.get("fatca",{}).get("APP_FATCA_BIRTH_COUNTRY",""))
+    html_template = html_template.replace("{country_of_birth}",str(user_details.get("fatca",{}).get("APP_FATCA_BIRTH_COUNTRY","")))
     html_template = html_template.replace("{country_of_citizenship}",user_details.get("fatca",{}).get("APP_FATCA_COUNTRY_CITYZENSHIP","IN"))
     html_template = html_template.replace("{date_of_declaration}",user_details.get("fatca",{}).get("APP_FATCA_DATE_DECLARATION",""))
     html_template = html_template.replace("{political_connection}",user_details.get("fatca",{}).get("APP_POL_CONN",""))
-    html_template = html_template.replace("{gross_annual_income}",user_details.get("fatca",{}).get("GROSS_ANNUAL_INCOME",""))
-    html_template = html_template.replace("{net_worth}",user_details.get("fatca",{}).get("APP_NETWRTH",""))
+    html_template = html_template.replace("{gross_annual_income}",str(user_details.get("fatca",{}).get("GROSS_ANNUAL_INCOME","")))
+    html_template = html_template.replace("{net_worth}",str(user_details.get("fatca",{}).get("APP_NETWRTH","")))
     html_template = html_template.replace("{country_of_residency_1}",user_details.get("fatca",{}).get("APP_FATCA_COUNTRY_RESIDENCY_1",""))
     html_template = html_template.replace("{tax_no_1}",user_details.get("fatca",{}).get("APP_FATCA_TAX_IDENTIFICATION_NO_1",""))
     html_template = html_template.replace("{tax_exempt_flag_1}",user_details.get("fatca",{}).get("APP_FATCA_TAX_EXEMPT_FLAG_1",""))
@@ -194,7 +194,7 @@ def make_camspdf(user_details,mobile,signature_base64):
                     "fatca":user_details.get("fatca"),
                     "fatca_flag":user_details.get("APP_FATCA_APPLICABLE_FLAG"),
                     "state":poa["@state"],
-                    "father_name":user_details.get("father_spouse_fullname","Subhrajyoti Datta"),
+                    "father_name":user_details.get("father_spouse_fullname","NA"),
                     "relation_type":user_details.get("relation_type","son"),
                     "salutation":user_details.get("salutation","Mr"),
                     "modification_data":mod_data,
