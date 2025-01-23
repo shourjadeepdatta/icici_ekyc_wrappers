@@ -7,6 +7,7 @@ from flask import Flask,jsonify,request,redirect,make_response
 from flask_cors import CORS
 import PyPDF2
 import boto3
+from config import state_master as sm
 from boto3.dynamodb.conditions import Key
 
 
@@ -119,17 +120,17 @@ def make_camspdf(user_details,mobile,signature_base64):
     mod_data = user_details.get("updated_data","")
     user_details = json.loads(user_details.get("decryptedData"))
     
-    html_template = html_template.replace("{pan}",user_details["poi"]["pan"])
-    html_template = html_template.replace("{mobile}",user_details["poi"]["mobile"])
-    html_template = html_template.replace("{father_name}",user_details.get("father_spouse_fullname",""))
-    html_template = html_template.replace("{email}",user_details["poi"].get("email_id","").lower())
-    html_template = html_template.replace("{name}",poi["@name"])
-    html_template = html_template.replace("{dob}",poi["@dob"])
-    html_template = html_template.replace("{state}",poa["@state"])
+    html_template = html_template.replace("{pan}",mod_data.get("APP_PAN_NO","NA"))
+    html_template = html_template.replace("{mobile}",mod_data.get("APP_MOB_NO","NA"))
+    html_template = html_template.replace("{father_name}",mod_data.get("APP_F_NAME","NA"))
+    html_template = html_template.replace("{email}",mod_data.get("APP_EMAIL","NA").lower())
+    html_template = html_template.replace("{name}",mod_data.get("APP_NAME","NA"))
+    html_template = html_template.replace("{dob}",mod_data.get("APP_DOB_DT","NA"))
+    html_template = html_template.replace("{state}",sm.get(mod_data.get("APP_PER_STATE",mod_data.get("APP_COR_STATE","NA")),"NA"))
     html_template = html_template.replace("{masked_aadhaar_number}",uiddata["@uid"])
-    html_template = html_template.replace("{city}",poa["@vtc"])
-    html_template = html_template.replace("{pincode}",poa["@pc"])
-    html_template = html_template.replace("{gender}",poi["@gender"])
+    html_template = html_template.replace("{city}",mod_data.get("APP_PER_CITY","NA"))
+    html_template = html_template.replace("{pincode}",mod_data.get("APP_PER_PINCD","NA"))
+    html_template = html_template.replace("{gender}",mod_data.get("APP_GEN","NA"))
 
     html_template = html_template.replace("{place_of_birth}",user_details.get("fatca",{}).get("APP_FATCA_BIRTH_PLACE",""))
     html_template = html_template.replace("{country_of_birth}",str(user_details.get("fatca",{}).get("APP_FATCA_BIRTH_COUNTRY","")))
@@ -160,7 +161,7 @@ def make_camspdf(user_details,mobile,signature_base64):
     html_template = html_template.replace("{tax_exempt_4}",user_details.get("fatca",{}).get("APP_FATCA_TAX_EXEMPT_REASON_4",""))
    
     html_template = html_template.replace("{photo}",uiddata["Pht"])
-    #html_template = html_template.replace("{signature_photo}",signature_base64)
+    html_template = html_template.replace("{signature_photo}",mod_data.get("APP_SIGNATURE",""))
 
 
     field_order = ["co","house","street","loc","lm","po","pc","vtc","subdist","dist","state","country"]
@@ -181,9 +182,9 @@ def make_camspdf(user_details,mobile,signature_base64):
     address2 = address[1] if len(address) > 1 else ""
     address3 = address[2] if len(address) > 2 else ""
 
-    html_template = html_template.replace("{address1}",address1)
-    html_template = html_template.replace("{address2}",address2)
-    html_template = html_template.replace("{address3}",address3)
+    html_template = html_template.replace("{address1}",mod_data.get("APP_PER_ADD1",mod_data.get("APP_COR_ADD1","NA")))
+    html_template = html_template.replace("{address2}",mod_data.get("APP_PER_ADD2",mod_data.get("APP_COR_ADD2","NA")))
+    html_template = html_template.replace("{address3}",mod_data.get("APP_PER_ADD3",mod_data.get("APP_COR_ADD3","NA")))
 
     try:
         cams_json = {
@@ -194,7 +195,8 @@ def make_camspdf(user_details,mobile,signature_base64):
                     "fatca":user_details.get("fatca"),
                     "fatca_flag":user_details.get("APP_FATCA_APPLICABLE_FLAG"),
                     "state":poa["@state"],
-                    "father_name":user_details.get("father_spouse_fullname","NA"),
+                    #"father_name":user_details.get("father_spouse_fullname","NA"),
+                    "father_name":mod_data.get("APP_F_NAME","NA"),
                     "relation_type":user_details.get("relation_type","son"),
                     "salutation":user_details.get("salutation","Mr"),
                     "modification_data":mod_data,
@@ -205,11 +207,11 @@ def make_camspdf(user_details,mobile,signature_base64):
                     "gender":poi["@gender"],
                     "pincode":poa["@pc"],
                     "dist":poa["@dist"],
-                    "address1":address1,
-                    "address2":address2,
-                    "address3":address3,
+                    "address1":mod_data.get("APP_PER_ADD1",mod_data.get("APP_COR_ADD1","NA")),
+                    "address2":mod_data.get("APP_PER_ADD2",mod_data.get("APP_COR_ADD2","NA")),
+                    "address3":mod_data.get("APP_PER_ADD3",mod_data.get("APP_COR_ADD3","NA")),
                     "Pht":uiddata["Pht"],
-                    "sb64":signature_base64
+                    "sb64":mod_data.get("APP_SIGNATURE","")
                 }
         print("before writing the cams payload->>>>>>>>>>")
         with open(mobile+"_cams.txt","w") as cams:

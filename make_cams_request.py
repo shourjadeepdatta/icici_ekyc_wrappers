@@ -376,8 +376,8 @@ def generate_request_body_from_data(request_raw_data,aadhaar_photo_b64,signature
 	if isinstance(request_raw_data["sb64"],bytes):
 		data["APP_DOC_SIGN"] = request_raw_data["sb64"].decode('utf-8')
 	data["APP_DOC_SIGN"] = request_raw_data["sb64"] #signature_photo_b64"" #Just signature photo
-	if isinstance(request_raw_data["axml"],bytes):
-		data["AADHAR_XML"] = request_raw_data["axml"].decode('utf-8')
+	#if isinstance(request_raw_data["axml"],bytes):
+		#data["AADHAR_XML"] = request_raw_data["axml"].decode('utf-8')
 	data["AADHAR_XML"] = request_raw_data["axml"]
 	data["AADHAR_PASSCODE"] = request_raw_data.get("AADHAR_PASSCODE","12345")
 	data["AADHAR_DIGIT"] = "1"
