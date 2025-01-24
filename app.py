@@ -120,6 +120,10 @@ def make_camspdf(user_details,mobile,signature_base64):
     print(user_details.get("updated_data","no mod data found"))
     mod_data = user_details.get("updated_data","")
     user_details = json.loads(user_details.get("decryptedData"))
+    print("residency 1 country",country_mapper.get(user_details.get("fatca",{}).get("APP_FATCA_COUNTRY_RESIDENCY_1"),"IN"))
+    print("residency 2 country",country_mapper.get(user_details.get("fatca",{}).get("APP_FATCA_COUNTRY_RESIDENCY_2"),"IN"))
+    print("residency 3 country",country_mapper.get(user_details.get("fatca",{}).get("APP_FATCA_COUNTRY_RESIDENCY_3"),"IN"))
+    print("residency 4 country",country_mapper.get(user_details.get("fatca",{}).get("APP_FATCA_COUNTRY_RESIDENCY_4"),"IN"))
     
     html_template = html_template.replace("{pan}",mod_data.get("APP_PAN_NO","NA"))
     html_template = html_template.replace("{mobile}",mod_data.get("APP_MOB_NO","NA"))
