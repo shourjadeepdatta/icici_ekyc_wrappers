@@ -284,7 +284,7 @@ def ekyc_verify():
 
 
 @bp.route('/uat/ekyc_verify', methods=['POST'])
-def ekyc_verify():
+def uat_ekyc_verify():
     data = request.get_json()
 
     if data is None:
