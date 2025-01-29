@@ -86,8 +86,8 @@ title_master = {
 
 #get_password_url = "https://camskra.com/EIPVAPI/EIPVDetail/Getpassword"
 get_password_url = "https://www.camskra.com/EIPVAPI/EIPVDetail/IPVdetailsupd"
-kyc_creation_url = "https://camskra.com/EIPVAPI/EIPVDetail/IPVdetailsupd"
-kyc_mod_url = "https://api-dev.test.getkwikid.com/kyc/kra_push"
+#kyc_creation_url = "https://camskra.com/EIPVAPI/EIPVDetail/IPVdetailsupd"
+kyc_mod_url = "https://api-dev.test.getkwikid.com/kyc/uat/kra_push"
 
 def convert_bytes_to_base64(data):
     """

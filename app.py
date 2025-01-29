@@ -133,9 +133,9 @@ def make_camspdf(user_details,mobile,signature_base64):
     html_template = html_template.replace("{dob}",mod_data.get("APP_DOB_DT","NA"))
     html_template = html_template.replace("{state}",sm.get(mod_data.get("APP_PER_STATE",mod_data.get("APP_COR_STATE","NA")),"NA"))
     html_template = html_template.replace("{masked_aadhaar_number}",uiddata["@uid"])
-    html_template = html_template.replace("{city}",mod_data.get("APP_PER_CITY","NA"))
-    html_template = html_template.replace("{pincode}",mod_data.get("APP_PER_PINCD","NA"))
-    html_template = html_template.replace("{gender}",mod_data.get("APP_GEN","NA"))
+    html_template = html_template.replace("{city}",str(mod_data.get("APP_PER_CITY","NA")))
+    html_template = html_template.replace("{pincode}",str(mod_data.get("APP_PER_PINCD","NA")))
+    html_template = html_template.replace("{gender}",str(mod_data.get("APP_GEN","NA")))
 
     html_template = html_template.replace("{place_of_birth}",user_details.get("fatca",{}).get("APP_FATCA_BIRTH_PLACE",""))
     html_template = html_template.replace("{country_of_birth}",str(country_mapper.get(user_details.get("fatca",{}).get("APP_FATCA_BIRTH_COUNTRY"),"IN")))
@@ -354,10 +354,10 @@ def initiateEsign():
     #ffw = open("BAMPM9343K"+".txt","r")
     name = ffw.read()
     ffw.close()
-    payload={'aadhar_name': name, "user_id":request.args["mobile"]}
+    payload={'aadhar_name': name, "user_id":request.args["mobile"],"flag":"uat"}
     #payload={'aadhar_name': name, "user_id":"BAMPM9343K"}
     files=[
-    ('file',('file',open('/app/'+filetoread,'rb'),'application/octet-stream'))
+    ('file',('file',open('/home/ubuntu/icicipdfmaker/'+filetoread,'rb'),'application/octet-stream'))
     #('file',('file',open('/app/'+"BAMPM9343K.txt",'rb'),'application/octet-stream'))
     ]   
     headers = {
