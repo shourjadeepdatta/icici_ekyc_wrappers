@@ -226,7 +226,7 @@ def generate_request_body_from_data(request_raw_data,aadhaar_photo_b64,signature
                 "APP_USER_ID":"IBLIPRULIV",#
                 "APP_PAN":request_raw_data["pan"],#
 		#"APP_PASSWORD":"Sb0j0j0GuBBCgOUVITiJaw==",
-                "APP_PASSWORD":"wjpPWZSYUghHX09AaF55uw==",
+                "APP_PASSWORD":"Sb0j0j0GuBBCgOUVITiJaw==",
 		#"APP_OTHER_KRA":"THINKEKYC",
                 "APP_OTHER_KRA":"IBLIPRULIV",#
 		#"APP_PASSKEY":"UAT",
