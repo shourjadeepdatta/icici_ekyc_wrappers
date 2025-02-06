@@ -296,13 +296,13 @@ def generate_request_body_from_data(request_raw_data,aadhaar_photo_b64,signature
         }
 	if request_raw_data.get('fatca_flag') not in ["N",None]:
 		data["fatca"] = {
-			"APP_FATCA_PLACE_BIRTH": country_mapper.get(request_raw_data.get("fatca",{}).get("APP_FATCA_PLACE_BIRTH")),
-			"APP_FATCA_COUNTRY_BIRTH": country_mapper.get(request_raw_data.get("fatca",{}).get("APP_FATCA_COUNTRY_BIRTH"),"IN"),
+			"APP_FATCA_PLACE_BIRTH": request_raw_data.get("fatca",{}).get("APP_FATCA_PLACE_BIRTH","IN"),
+			"APP_FATCA_COUNTRY_BIRTH": request_raw_data.get("fatca",{}).get("APP_FATCA_COUNTRY_BIRTH","IN"),
 			"APP_FATCA_COUNTRY_CITYZENSHIP": request_raw_data.get("fatca",{}).get("APP_FATCA_COUNTRY_CITYZENSHIP","IN"),
 			"APP_FATCA_DATE_DECLARATION": request_raw_data.get("fatca",{}).get("APP_FATCA_DATE_DECLARATION"),
                         "APP_FATCA_TAX_JURISDICTION":request_raw_data.get("fatca",{}).get("APP_FATCA_TAX_JURISDICTION","Y"),
-                        "APP_FATCA_COUNTRYOF_JURISDICTION":country_mapper.get(request_raw_data.get("fatca",{}).get("APP_FATCA_COUNTRYOF_JURISDICTION"),"IN"),
-			"APP_POL_CONN": pol_mapper.get(request_raw_data.get("fatca",{}).get("APP_POL_CONN")),
+                        "APP_FATCA_COUNTRYOF_JURISDICTION":request_raw_data.get("fatca",{}).get("APP_FATCA_COUNTRYOF_JURISDICTION","IN"),
+			"APP_POL_CONN": request_raw_data.get("fatca",{}).get("APP_POL_CONN"),
 			"GROSS_ANNUAL_INCOME": request_raw_data.get("fatca",{}).get("GROSS_ANNUAL_INCOME"),
 			# "APP_NETWRTH": request_raw_data.get("fatca",{}).get("APP_NETWRTH"),
 			"APP_FATCA_COUNTRY_RESIDENCY_1": request_raw_data.get("fatca",{}).get("APP_FATCA_COUNTRY_RESIDENCY_1","IN"),
@@ -381,9 +381,9 @@ def generate_request_body_from_data(request_raw_data,aadhaar_photo_b64,signature
 	if isinstance(request_raw_data["sb64"],bytes):
 		data["APP_DOC_SIGN"] = request_raw_data["sb64"].decode('utf-8')
 	data["APP_DOC_SIGN"] = request_raw_data["sb64"] #signature_photo_b64"" #Just signature photo
-	#if isinstance(request_raw_data["axml"],bytes):
-		#data["AADHAR_XML"] = request_raw_data["axml"].decode('utf-8')
-	data["AADHAR_XML"] = request_raw_data["axml"]
+	if isinstance(request_raw_data["axml"],bytes):
+		data["AADHAR_XML"] = request_raw_data["axml"].decode('utf-8')
+	#data["AADHAR_XML"] = request_raw_data["axml"]
 	data["AADHAR_PASSCODE"] = request_raw_data.get("AADHAR_PASSCODE","12345")
 	data["AADHAR_DIGIT"] = "1"
 	data["APP_RESIDENTIAL_STATUS"] = "R"
