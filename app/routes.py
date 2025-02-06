@@ -335,7 +335,7 @@ def uat_ekyc_verify():
         <InputXML>{input_xml}</InputXML>
         <USERNAME>THINKEKYC</USERNAME>
         <POSCODE>L</POSCODE>
-        <PASSWORD>wjpPWZSYUghHX09AaF55uw==</PASSWORD>
+        <PASSWORD>Sb0j0j0GuBBCgOUVITiJaw==</PASSWORD>
         <PASSKEY>UAT</PASSKEY>
         </VerifyPANDetails_eKYC>
     </soap12:Body>
@@ -443,7 +443,7 @@ def uat_ekyc_verify():
               <InputXML>{xml_str}</InputXML>
               <USERNAME>THINKEKYC</USERNAME>
               <POSCODE>L</POSCODE>
-              <PASSWORD>wjpPWZSYUghHX09AaF55uw==</PASSWORD>
+              <PASSWORD>Sb0j0j0GuBBCgOUVITiJaw==</PASSWORD>
               <PASSKEY>UAT</PASSKEY>
             </DownloadPANDetails_eKYC>
           </soap12:Body>
