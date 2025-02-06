@@ -223,19 +223,19 @@ def generate_request_body_from_data(request_raw_data,aadhaar_photo_b64,signature
 	data = {
 		"APP_UPLOAD_TYPE":"03",
 		#"APP_USER_ID":"THINKEKYC",
-                "APP_USER_ID":"IBLIPRULIV",#
+                "APP_USER_ID":"THINKEKYC",#
                 "APP_PAN":request_raw_data["pan"],#
 		#"APP_PASSWORD":"Sb0j0j0GuBBCgOUVITiJaw==",
                 "APP_PASSWORD":"Sb0j0j0GuBBCgOUVITiJaw==",
 		#"APP_OTHER_KRA":"THINKEKYC",
-                "APP_OTHER_KRA":"IBLIPRULIV",#
+                "APP_OTHER_KRA":"THINKEKYC",#
 		#"APP_PASSKEY":"UAT",
-                "APP_PASSKEY":"LIVE",#
+                "APP_PASSKEY":"UAT",#
                 #"APP_POS_CODE":"IBL",
-                "APP_POS_CODE":"P",
+                "APP_POS_CODE":"IBL",
                 "APP_IPV_DOC_RECEIVED":"02",
 		#"APP_AMC":"IBL",
-                "APP_AMC":"P",#
+                "APP_AMC":"IBL",#
 		"APP_APPLICANT_CITIZENSHIP": "01",
 		"APP_OCCUPATION": app_occupation, # implies others
 		"APP_APPLICANT_KYC_ACC_TYPE": "01",
@@ -381,9 +381,9 @@ def generate_request_body_from_data(request_raw_data,aadhaar_photo_b64,signature
 	if isinstance(request_raw_data["sb64"],bytes):
 		data["APP_DOC_SIGN"] = request_raw_data["sb64"].decode('utf-8')
 	data["APP_DOC_SIGN"] = request_raw_data["sb64"] #signature_photo_b64"" #Just signature photo
-	#if isinstance(request_raw_data["axml"],bytes):
-		#data["AADHAR_XML"] = request_raw_data["axml"].decode('utf-8')
-	data["AADHAR_XML"] = request_raw_data["axml"]
+	if isinstance(request_raw_data["axml"],bytes):
+		data["AADHAR_XML"] = request_raw_data["axml"].decode('utf-8')
+	#data["AADHAR_XML"] = request_raw_data["axml"]
 	data["AADHAR_PASSCODE"] = request_raw_data.get("AADHAR_PASSCODE","12345")
 	data["AADHAR_DIGIT"] = "1"
 	data["APP_RESIDENTIAL_STATUS"] = "R"
